@@ -178,19 +178,34 @@ function App() {
     selected_tags: [] as number[]
   });
 
+  // AI 서비스 페이지에서만 필요한 API 호출
   useEffect(() => {
-    setPagination(prev => ({ ...prev, page: 1 }));
-    fetchAIServices(1);
-    fetchCategories();
-    fetchTags();
-    fetchAiTypes();
-    fetchPricingModels();
-    fetchTargetTypes();
+    if (currentPage === 'ai-services') {
+      setPagination(prev => ({ ...prev, page: 1 }));
+      fetchAIServices(1);
+      // 폼 열릴 때만 필요한 데이터 로드
+      if (showForm && (categories.length === 0 || availableTags.length === 0)) {
+        fetchCategories();
+        fetchTags();
+        fetchAiTypes();
+        fetchPricingModels();
+        fetchTargetTypes();
+      }
+    }
+  }, [filters, currentPage]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // AI 비디오 페이지에서만 필요한 API 호출
+  useEffect(() => {
     if (currentPage === 'ai-videos') {
       setVideoPagination(prev => ({ ...prev, page: 1 }));
       fetchAIVideos(1);
+      // 폼 열릴 때만 필요한 데이터 로드
+      if (showVideoForm && (categories.length === 0 || availableTags.length === 0)) {
+        fetchCategories();
+        fetchTags();
+      }
     }
-  }, [filters, currentPage]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentPage]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchAIServices = async (page = pagination.page) => {
     setLoading(true);
@@ -621,6 +636,9 @@ function App() {
             setEditingVideo(null);
             resetVideoForm();
             setShowVideoForm(true);
+            // 폼 열릴 때 필요한 데이터 로드
+            if (categories.length === 0) fetchCategories();
+            if (availableTags.length === 0) fetchTags();
           }}
         >
           + 새 영상 콘텐츠
@@ -930,6 +948,12 @@ function App() {
               setEditingService(null);
               resetForm();
               setShowForm(true);
+              // 폼 열릴 때 필요한 데이터 로드
+              if (categories.length === 0) fetchCategories();
+              if (availableTags.length === 0) fetchTags();
+              if (aiTypes.length === 0) fetchAiTypes();
+              if (pricingModels.length === 0) fetchPricingModels();
+              if (targetTypes.length === 0) fetchTargetTypes();
             }}
           >
             + 새 AI 서비스
