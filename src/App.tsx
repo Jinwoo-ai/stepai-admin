@@ -87,7 +87,7 @@ interface AIVideo {
   ai_services?: AIService[];
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://stepai-api-production.up.railway.app';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('ai-services');
