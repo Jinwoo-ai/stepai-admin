@@ -25,7 +25,9 @@
   },
   "scripts": {
     "start": "REACT_APP_API_BASE_URL=http://localhost:3004 react-scripts start",
-    "build": "react-scripts build",
+    "start:server": "HOST=0.0.0.0 PORT=3005 REACT_APP_API_BASE_URL=http://서버IP:3004 react-scripts start",
+    "build": "CI=false react-scripts build",
+    "build:server": "CI=false REACT_APP_API_BASE_URL=http://서버IP:3004 react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
