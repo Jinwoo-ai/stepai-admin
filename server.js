@@ -16,16 +16,44 @@ app.use('/api', async (req, res) => {
       method: req.method,
       headers: { 
         'Content-Type': 'application/json',
-        ...req.headers 
+        'User-Agent': 'StepAI-Admin-Proxy/1.0'
       },
-      body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined
+      body: req.method !== 'GET' && req.body ? JSON.stringify(req.body) : undefined,
+      timeout: 30000
     };
     
     const response = await fetch(apiUrl, options);
-    const data = await response.json();
-    res.json(data);
+    
+    if (!response.ok) {
+      return res.status(response.status).json({ 
+        success: false, 
+        error: `API Error: ${response.status} ${response.statusText}` 
+      });
+    }
+    
+    const text = await response.text();
+    
+    if (!text) {
+      return res.json({ success: false, error: 'Empty response from API' });
+    }
+    
+    try {
+      const data = JSON.parse(text);
+      res.json(data);
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError, 'Response:', text);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Invalid JSON response from API',
+        raw: text.substring(0, 200)
+      });
+    }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Proxy Error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Proxy request failed' 
+    });
   }
 });
 
