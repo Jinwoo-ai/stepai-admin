@@ -1,1 +1,1 @@
-web: DANGEROUSLY_DISABLE_HOST_CHECK=true HOST=0.0.0.0 PORT=$PORT npm run start:railway
+web: node server.js

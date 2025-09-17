@@ -14,11 +14,8 @@ COPY . .
 # 빌드
 RUN CI=false npm run build
 
-# serve 패키지 전역 설치
-RUN npm install -g serve
-
 # 포트 설정
 EXPOSE $PORT
 
-# 정적 파일 서빙
-CMD ["sh", "-c", "serve -s build -l $PORT"]
+# Express 서버 시작
+CMD ["node", "server.js"]
