@@ -13,7 +13,7 @@ interface Category {
   children?: Category[];
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3004';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
 
 const Categories: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);

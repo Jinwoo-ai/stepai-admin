@@ -12,7 +12,7 @@ interface DashboardStats {
   totalViews: number;
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3004';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
 
 const Dashboard: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats>({

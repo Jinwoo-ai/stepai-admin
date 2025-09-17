@@ -19,7 +19,7 @@ interface AIService {
   service_order?: number;
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3004';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
 
 const Curations: React.FC = () => {
   const [curations, setCurations] = useState<Curation[]>([]);

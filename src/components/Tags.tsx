@@ -23,7 +23,7 @@ interface TagItem {
   created_at: string;
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3004';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
 
 const Tags: React.FC = () => {
   const [tags, setTags] = useState<Tag[]>([]);
