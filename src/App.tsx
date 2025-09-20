@@ -14,7 +14,7 @@ interface AIService {
   ai_name: string;
   ai_name_en?: string;
   ai_description?: string;
-  ai_type: string;
+  ai_type?: string;
   ai_website?: string;
   ai_logo?: string;
   company_name?: string;
@@ -27,18 +27,19 @@ interface AIService {
   similar_services?: string;
   pricing_model?: string;
   pricing_info?: string;
-  difficulty_level: string;
+  difficulty_level?: string;
   target_type?: string;
   usage_availability?: string;
-  ai_status: string;
-  is_visible: boolean;
-  is_step_pick: boolean;
+  ai_status?: string;
+  is_visible?: boolean;
+  is_step_pick?: boolean;
   nationality?: string;
-  created_at: string;
+  created_at?: string;
   categories?: Category[];
   contents?: AIServiceContent[];
   sns?: AIServiceSNS[];
   similar_services_list?: AIService[];
+  service_order?: number;
 }
 
 interface Category {
@@ -177,35 +178,46 @@ function App() {
     ai_services: [] as { ai_service_id: number; ai_name: string }[],
     selected_tags: [] as number[]
   });
+  
+  const [showVideoServiceModal, setShowVideoServiceModal] = useState(false);
+  const [videoServiceSearch, setVideoServiceSearch] = useState('');
+  const [videoServiceResults, setVideoServiceResults] = useState<AIService[]>([]);
+  const [selectedVideoServices, setSelectedVideoServices] = useState<AIService[]>([]);
 
   // AI 서비스 페이지에서만 필요한 API 호출
   useEffect(() => {
     if (currentPage === 'ai-services') {
       setPagination(prev => ({ ...prev, page: 1 }));
       fetchAIServices(1);
-      // 폼 열릴 때만 필요한 데이터 로드
-      if (showForm && (categories.length === 0 || availableTags.length === 0)) {
-        fetchCategories();
-        fetchTags();
-        fetchAiTypes();
-        fetchPricingModels();
-        fetchTargetTypes();
-      }
     }
   }, [filters, currentPage]); // eslint-disable-line react-hooks/exhaustive-deps
+  
+  // AI 서비스 폼 열릴 때 데이터 로드
+  useEffect(() => {
+    if (currentPage === 'ai-services' && showForm) {
+      if (categories.length === 0) fetchCategories();
+      if (availableTags.length === 0) fetchTags();
+      if (aiTypes.length === 0) fetchAiTypes();
+      if (pricingModels.length === 0) fetchPricingModels();
+      if (targetTypes.length === 0) fetchTargetTypes();
+    }
+  }, [currentPage, showForm]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // AI 비디오 페이지에서만 필요한 API 호출
   useEffect(() => {
     if (currentPage === 'ai-videos') {
       setVideoPagination(prev => ({ ...prev, page: 1 }));
       fetchAIVideos(1);
-      // 폼 열릴 때만 필요한 데이터 로드
-      if (showVideoForm && (categories.length === 0 || availableTags.length === 0)) {
-        fetchCategories();
-        fetchTags();
-      }
     }
   }, [currentPage]); // eslint-disable-line react-hooks/exhaustive-deps
+  
+  // AI 비디오 폼 열릴 때 데이터 로드
+  useEffect(() => {
+    if (currentPage === 'ai-videos' && showVideoForm) {
+      if (categories.length === 0) fetchCategories();
+      if (availableTags.length === 0) fetchTags();
+    }
+  }, [currentPage, showVideoForm]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchAIServices = async (page = pagination.page) => {
     setLoading(true);
@@ -571,7 +583,14 @@ function App() {
       const response = await fetch(url, {
         method: editingVideo ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(videoFormData),
+        body: JSON.stringify({
+          ...videoFormData,
+          ai_services: selectedVideoServices.map((service, index) => ({
+            ai_service_id: service.id,
+            ai_name: service.ai_name,
+            usage_order: index + 1
+          }))
+        }),
       });
 
       if (response.ok) {
@@ -598,6 +617,47 @@ function App() {
       ai_services: [],
       selected_tags: []
     });
+    setSelectedVideoServices([]);
+  };
+  
+  const searchVideoServices = async (query: string) => {
+    if (!query.trim()) {
+      setVideoServiceResults([]);
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/ai-services/search?q=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      if (data.success) {
+        setVideoServiceResults(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error searching services:', error);
+    }
+  };
+  
+  const addVideoService = (service: AIService) => {
+    if (!selectedVideoServices.find(s => s.id === service.id)) {
+      setSelectedVideoServices(prev => [...prev, service]);
+    }
+    setShowVideoServiceModal(false);
+    setVideoServiceSearch('');
+    setVideoServiceResults([]);
+  };
+  
+  const removeVideoService = (serviceId: number) => {
+    setSelectedVideoServices(prev => prev.filter(s => s.id !== serviceId));
+  };
+  
+  const moveVideoService = (index: number, direction: 'up' | 'down') => {
+    const newServices = [...selectedVideoServices];
+    if (direction === 'up' && index > 0) {
+      [newServices[index], newServices[index - 1]] = [newServices[index - 1], newServices[index]];
+    } else if (direction === 'down' && index < newServices.length - 1) {
+      [newServices[index], newServices[index + 1]] = [newServices[index + 1], newServices[index]];
+    }
+    setSelectedVideoServices(newServices);
   };
 
   const deleteVideo = async (id: number) => {
@@ -786,6 +846,67 @@ function App() {
                   </div>
                 </div>
               </div>
+              
+              {/* AI 서비스 선택 */}
+              <div className="form-section">
+                <h3>연관 AI 서비스</h3>
+                <div className="selected-services-grid">
+                  {selectedVideoServices.map((service, index) => (
+                    <div key={service.id} className="service-card">
+                      <div className="service-card-header">
+                        <div className="service-order-badge">{index + 1}</div>
+                        <button 
+                          type="button" 
+                          onClick={() => removeVideoService(service.id)}
+                          className="btn-remove-card"
+                          title="제거"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div className="service-card-content">
+                        <div className="service-icon">
+                          🤖
+                        </div>
+                        <div className="service-info">
+                          <div className="service-name">{service.ai_name}</div>
+                          <div className="service-type">{service.ai_type}</div>
+                        </div>
+                      </div>
+                      <div className="service-card-actions">
+                        <button 
+                          type="button" 
+                          onClick={() => moveVideoService(index, 'up')}
+                          disabled={index === 0}
+                          className="btn-move"
+                          title="위로 이동"
+                        >
+                          ↑
+                        </button>
+                        <button 
+                          type="button" 
+                          onClick={() => moveVideoService(index, 'down')}
+                          disabled={index === selectedVideoServices.length - 1}
+                          className="btn-move"
+                          title="아래로 이동"
+                        >
+                          ↓
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="add-service-card">
+                    <button 
+                      type="button" 
+                      onClick={() => setShowVideoServiceModal(true)}
+                      className="btn-add-service"
+                    >
+                      <div className="add-icon">+</div>
+                      <div className="add-text">AI 서비스 추가</div>
+                    </button>
+                  </div>
+                </div>
+              </div>
 
               <div className="form-actions">
                 <button type="button" onClick={() => setShowVideoForm(false)}>
@@ -796,6 +917,59 @@ function App() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      
+      {/* AI 서비스 검색 모달 (영상용) */}
+      {showVideoServiceModal && (
+        <div className="form-modal">
+          <div className="form-container">
+            <h3>AI 서비스 검색</h3>
+            <div className="search-input-container">
+              <input
+                type="text"
+                placeholder="AI 서비스명으로 검색"
+                value={videoServiceSearch}
+                onChange={(e) => {
+                  setVideoServiceSearch(e.target.value);
+                  searchVideoServices(e.target.value);
+                }}
+                className="search-input"
+              />
+            </div>
+            <div className="search-results-grid">
+              {videoServiceResults.map(service => (
+                <div key={service.id} className="search-result-card">
+                  <div className="result-card-content">
+                    <div className="result-service-icon">
+                      🤖
+                    </div>
+                    <div className="result-service-info">
+                      <div className="result-service-name">{service.ai_name}</div>
+                      <div className="result-service-type">{service.ai_type}</div>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => addVideoService(service)}
+                    className="btn-add-result"
+                    disabled={selectedVideoServices.some(s => s.id === service.id)}
+                  >
+                    {selectedVideoServices.some(s => s.id === service.id) ? '이미 추가됨' : '추가'}
+                  </button>
+                </div>
+              ))}
+              {videoServiceSearch && videoServiceResults.length === 0 && (
+                <div className="no-results">
+                  검색 결과가 없습니다.
+                </div>
+              )}
+            </div>
+            <div className="modal-actions">
+              <button onClick={() => setShowVideoServiceModal(false)} className="btn-close">
+                닫기
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -856,6 +1030,11 @@ function App() {
                           ai_services: video.ai_services?.map(service => ({ ai_service_id: service.id!, ai_name: service.ai_name })) || [],
                           selected_tags: (video as any).tag_ids || []
                         });
+                        setSelectedVideoServices(video.ai_services?.map(service => ({
+                          id: service.id!,
+                          ai_name: service.ai_name,
+                          ai_type: service.ai_type || ''
+                        })) || []);
                         setShowVideoForm(true);
                       }}
                       className="btn-edit"
@@ -1107,18 +1286,61 @@ function App() {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label>로고 URL</label>
-                  <input
-                    type="url"
-                    value={formData.ai_logo}
-                    onChange={(e) => setFormData(prev => ({ ...prev, ai_logo: e.target.value }))}
-                    placeholder="https://example.com/logo.png"
-                  />
-                  {formData.ai_logo && (
-                    <div className="logo-preview">
-                      <img src={formData.ai_logo} alt="로고 미리보기" className="logo-preview-img" />
+                  <label>로고</label>
+                  <div className="logo-upload-section">
+                    <div className="logo-input-group">
+                      <input
+                        type="url"
+                        value={formData.ai_logo}
+                        onChange={(e) => setFormData(prev => ({ ...prev, ai_logo: e.target.value }))}
+                        placeholder="https://example.com/logo.png 또는 파일 업로드"
+                      />
+                      <div className="upload-buttons">
+                        <input
+                          type="file"
+                          id="logo-upload"
+                          accept=".jpg,.jpeg,.png,.gif,.ico,.svg"
+                          style={{ display: 'none' }}
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const formData = new FormData();
+                              formData.append('icon', file);
+                              
+                              try {
+                                const response = await fetch(`${API_BASE_URL}/api/ai-services/upload-icon`, {
+                                  method: 'POST',
+                                  body: formData
+                                });
+                                
+                                const result = await response.json();
+                                if (result.success) {
+                                  setFormData(prev => ({ ...prev, ai_logo: `${API_BASE_URL}${result.data.url}` }));
+                                } else {
+                                  alert('업로드 실패: ' + result.error);
+                                }
+                              } catch (error) {
+                                console.error('Upload error:', error);
+                                alert('업로드 중 오류가 발생했습니다.');
+                              }
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => document.getElementById('logo-upload')?.click()}
+                          className="btn btn-secondary btn-small"
+                        >
+                          파일 업로드
+                        </button>
+                      </div>
                     </div>
-                  )}
+                    {formData.ai_logo && (
+                      <div className="logo-preview">
+                        <img src={formData.ai_logo} alt="로고 미리보기" className="logo-preview-img" />
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="form-group">
                   <label>임베디드 영상 URL</label>
@@ -1799,7 +2021,7 @@ function App() {
                       <div className="service-type">{service.ai_type}</div>
                     </div>
                   </td>
-                  <td>{new Date(service.created_at).toLocaleDateString()}</td>
+                  <td>{service.created_at ? new Date(service.created_at).toLocaleDateString() : ''}</td>
                   <td>
                     <button
                       onClick={() => toggleStepPick(service)}
@@ -1830,12 +2052,12 @@ function App() {
                           headquarters: service.headquarters || '',
                           pricing_model_ids: (service as any).pricing_models ? pricingModels.filter(m => (service as any).pricing_models.includes(m.model_name)).map(m => m.id) : [],
                           pricing_info: service.pricing_info || '',
-                          difficulty_level: service.difficulty_level,
+                          difficulty_level: service.difficulty_level || 'beginner',
                           target_type_ids: (service as any).target_types ? targetTypes.filter(t => (service as any).target_types.some((st: any) => st.code === t.type_code)).map(t => t.id) : [],
                           usage_availability: service.usage_availability || '',
                           nationality: service.nationality || '',
-                          is_visible: service.is_visible,
-                          is_step_pick: service.is_step_pick,
+                          is_visible: service.is_visible ?? true,
+                          is_step_pick: service.is_step_pick ?? false,
                           categories: service.categories?.map(cat => ({
                             category_id: cat.id,
                             is_main: !!cat.is_main_category,
