@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import Categories from './components/Categories';
+import CategoryDisplayOrder from './components/CategoryDisplayOrder';
+import HomepageSettings from './components/HomepageSettings';
 import Curations from './components/Curations';
 import Users from './components/Users';
 import Dashboard from './components/Dashboard';
 import SiteSettings from './components/SiteSettings';
 import Tags, { TagOption } from './components/Tags';
+import AdPartnerships from './components/AdPartnerships';
 import './App.css';
 
 interface AIService {
@@ -2174,6 +2177,22 @@ function App() {
           </li>
           <li>
             <button
+              className={currentPage === 'category-display-order' ? 'active' : ''}
+              onClick={() => setCurrentPage('category-display-order')}
+            >
+              📋 카테고리 표시순서
+            </button>
+          </li>
+          <li>
+            <button
+              className={currentPage === 'homepage-settings' ? 'active' : ''}
+              onClick={() => setCurrentPage('homepage-settings')}
+            >
+              🏠 메인페이지 관리
+            </button>
+          </li>
+          <li>
+            <button
               className={currentPage === 'tags' ? 'active' : ''}
               onClick={() => setCurrentPage('tags')}
             >
@@ -2214,6 +2233,14 @@ function App() {
           </li>
           <li>
             <button
+              className={currentPage === 'ad-partnerships' ? 'active' : ''}
+              onClick={() => setCurrentPage('ad-partnerships')}
+            >
+              🤝 광고제휴
+            </button>
+          </li>
+          <li>
+            <button
               className={currentPage === 'site-settings' ? 'active' : ''}
               onClick={() => setCurrentPage('site-settings')}
             >
@@ -2226,11 +2253,14 @@ function App() {
       <main className="main-content">
         {currentPage === 'dashboard' && <Dashboard />}
         {currentPage === 'categories' && <Categories />}
+        {currentPage === 'category-display-order' && <CategoryDisplayOrder />}
+        {currentPage === 'homepage-settings' && <HomepageSettings />}
         {currentPage === 'ai-services' && renderAIServices()}
         {currentPage === 'ai-videos' && renderAIVideos()}
         {currentPage === 'curations' && <Curations />}
         {currentPage === 'users' && <Users />}
         {currentPage === 'tags' && <Tags />}
+        {currentPage === 'ad-partnerships' && <AdPartnerships />}
         {currentPage === 'site-settings' && <SiteSettings />}
       </main>
     </div>
