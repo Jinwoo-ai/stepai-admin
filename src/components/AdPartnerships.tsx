@@ -216,15 +216,17 @@ const AdPartnerships: React.FC = () => {
                       setSelectedPartnership(partnership);
                       setShowModal(true);
                     }}
-                    className="text-indigo-600 hover:text-indigo-900 mr-3"
+                    className="btn-edit mr-2"
+                    title="상세보기"
                   >
-                    상세보기
+                    👁️
                   </button>
                   <button
                     onClick={() => deletePartnership(partnership.id)}
-                    className="text-red-600 hover:text-red-900"
+                    className="btn-delete"
+                    title="삭제"
                   >
-                    삭제
+                    🗑️
                   </button>
                 </td>
               </tr>
@@ -258,75 +260,105 @@ const AdPartnerships: React.FC = () => {
 
       {/* 상세보기 모달 */}
       {showModal && selectedPartnership && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <div className="form-modal">
+          <div className="form-container large">
+            <div className="modal-header">
+              <h3 className="text-lg font-medium text-gray-900">
                 광고제휴 상세정보
               </h3>
-              
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">회사명</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedPartnership.company_name}</p>
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  setSelectedPartnership(null);
+                }}
+                className="btn-close"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="modal-content">
+              <div className="form-section">
+                <h4>기본 정보</h4>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>회사명</label>
+                    <p className="form-value">{selectedPartnership.company_name}</p>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">담당자</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedPartnership.contact_person}</p>
+                  <div className="form-group">
+                    <label>담당자</label>
+                    <p className="form-value">{selectedPartnership.contact_person}</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">이메일</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedPartnership.contact_email}</p>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>이메일</label>
+                    <p className="form-value">{selectedPartnership.contact_email}</p>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">연락처</label>
-                    <p className="mt-1 text-sm text-gray-900">{selectedPartnership.contact_phone || '-'}</p>
+                  <div className="form-group">
+                    <label>연락처</label>
+                    <p className="form-value">{selectedPartnership.contact_phone || '-'}</p>
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">제휴 유형</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedPartnership.partnership_type}</p>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>제휴 유형</label>
+                    <p className="form-value">{selectedPartnership.partnership_type}</p>
+                  </div>
+                  <div className="form-group">
+                    <label>예산 범위</label>
+                    <p className="form-value">{selectedPartnership.budget_range || '-'}</p>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">예산 범위</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedPartnership.budget_range || '-'}</p>
+                <div className="form-group">
+                  <label>캠페인 기간</label>
+                  <p className="form-value">{selectedPartnership.campaign_period || '-'}</p>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">캠페인 기간</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedPartnership.campaign_period || '-'}</p>
+                <div className="form-group">
+                  <label>타겟 고객층</label>
+                  <p className="form-value">{selectedPartnership.target_audience || '-'}</p>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">타겟 고객층</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedPartnership.target_audience || '-'}</p>
+                <div className="form-group">
+                  <label>캠페인 설명</label>
+                  <p className="form-value">{selectedPartnership.campaign_description || '-'}</p>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">캠페인 설명</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedPartnership.campaign_description || '-'}</p>
+                <div className="form-group">
+                  <label>추가 요구사항</label>
+                  <p className="form-value">{selectedPartnership.additional_requirements || '-'}</p>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">추가 요구사항</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedPartnership.additional_requirements || '-'}</p>
-                </div>
+                {selectedPartnership.attachment_url && (
+                  <div className="form-group">
+                    <label>첨부파일</label>
+                    <a 
+                      href={selectedPartnership.attachment_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      파일 보기
+                    </a>
+                  </div>
+                )}
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">상태</label>
+              <div className="form-section">
+                <h4>관리 정보</h4>
+                <div className="form-group">
+                  <label>상태</label>
                   <select
                     value={selectedPartnership.inquiry_status}
                     onChange={(e) => setSelectedPartnership({
                       ...selectedPartnership,
                       inquiry_status: e.target.value as any
                     })}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="form-input"
                   >
                     {statusOptions.map(option => (
                       <option key={option.value} value={option.value}>{option.label}</option>
@@ -334,42 +366,55 @@ const AdPartnerships: React.FC = () => {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">관리자 메모</label>
+                <div className="form-group">
+                  <label>관리자 메모</label>
                   <textarea
                     value={selectedPartnership.admin_notes || ''}
                     onChange={(e) => setSelectedPartnership({
                       ...selectedPartnership,
                       admin_notes: e.target.value
                     })}
-                    rows={3}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={4}
+                    className="form-input"
                     placeholder="관리자 메모를 입력하세요..."
                   />
                 </div>
-              </div>
 
-              <div className="mt-6 flex justify-end space-x-3">
-                <button
-                  onClick={() => {
-                    setShowModal(false);
-                    setSelectedPartnership(null);
-                  }}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                >
-                  취소
-                </button>
-                <button
-                  onClick={() => updatePartnership(selectedPartnership.id, {
-                    inquiry_status: selectedPartnership.inquiry_status,
-                    admin_notes: selectedPartnership.admin_notes,
-                    response_date: new Date().toISOString()
-                  })}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  저장
-                </button>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>등록일</label>
+                    <p className="form-value">{formatDate(selectedPartnership.created_at)}</p>
+                  </div>
+                  <div className="form-group">
+                    <label>응답일</label>
+                    <p className="form-value">
+                      {selectedPartnership.response_date ? formatDate(selectedPartnership.response_date) : '-'}
+                    </p>
+                  </div>
+                </div>
               </div>
+            </div>
+
+            <div className="modal-actions">
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  setSelectedPartnership(null);
+                }}
+                className="btn btn-secondary"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => updatePartnership(selectedPartnership.id, {
+                  inquiry_status: selectedPartnership.inquiry_status,
+                  admin_notes: selectedPartnership.admin_notes,
+                  response_date: new Date().toISOString()
+                })}
+                className="btn btn-primary"
+              >
+                저장
+              </button>
             </div>
           </div>
         </div>
