@@ -1319,9 +1319,8 @@ function App() {
                                 
                                 const result = await response.json();
                                 if (result.success) {
-                                  // 전체 URL로 설정
-                                  const logoUrl = `${API_BASE_URL}${result.data.url}`;
-                                  setFormData(prev => ({ ...prev, ai_logo: logoUrl }));
+                                  // API에서 반환된 URL 그대로 사용 (이미 전체 URL임)
+                                  setFormData(prev => ({ ...prev, ai_logo: result.data.url }));
                                 } else {
                                   alert('업로드 실패: ' + result.error);
                                 }
