@@ -19,6 +19,13 @@ app.use('/api', createProxyMiddleware({
   }
 }));
 
+// 업로드된 파일 프록시
+app.use('/uploads', createProxyMiddleware({
+  target: 'http://115.85.182.98:3004',
+  changeOrigin: true,
+  timeout: 30000
+}));
+
 
 // 정적 파일 서빙
 app.use(express.static(path.join(__dirname, 'build')));
