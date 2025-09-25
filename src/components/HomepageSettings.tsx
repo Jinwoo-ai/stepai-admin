@@ -93,7 +93,7 @@ const HomepageSettings: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
 
-  const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3004';
+  const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
 
   const setupTables = async () => {
     try {

@@ -1311,14 +1311,24 @@ function App() {
                               formData.append('icon', file);
                               
                               try {
-                                const response = await fetch(`${API_BASE_URL}/api/ai-services/upload-icon`, {
+                                // 프로덕션 환경에서는 AWS S3 사용, 개발환경에서는 로컬 업로드
+                                const isProduction = window.location.hostname !== 'localhost';
+                                const uploadEndpoint = isProduction 
+                                  ? `${API_BASE_URL}/api/ai-services/upload-icon-s3`
+                                  : `${API_BASE_URL}/api/ai-services/upload-icon`;
+                                
+                                const response = await fetch(uploadEndpoint, {
                                   method: 'POST',
                                   body: formData
                                 });
                                 
                                 const result = await response.json();
                                 if (result.success) {
-                                  setFormData(prev => ({ ...prev, ai_logo: `${API_BASE_URL}${result.data.url}` }));
+                                  // S3는 전체 URL을 반환하고, 로컬은 상대 경로를 반환
+                                  const logoUrl = isProduction 
+                                    ? result.data.url 
+                                    : `${API_BASE_URL}${result.data.url}`;
+                                  setFormData(prev => ({ ...prev, ai_logo: logoUrl }));
                                 } else {
                                   alert('업로드 실패: ' + result.error);
                                 }
@@ -1824,7 +1834,7 @@ function App() {
               <div className="info-header">
                 <h4>엑셀 파일 형식</h4>
                 <a 
-                  href="http://localhost:3004/public/ai_services_template.xlsx"
+                  href={`${API_BASE_URL}/public/ai_services_template.xlsx`}
                   download="ai_services_template.xlsx"
                   className="btn btn-secondary btn-small"
                   style={{ textDecoration: 'none', display: 'inline-block' }}
