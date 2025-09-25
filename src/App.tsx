@@ -1319,8 +1319,9 @@ function App() {
                                 
                                 const result = await response.json();
                                 if (result.success) {
-                                  // API에서 반환된 URL 그대로 사용 (이미 전체 URL임)
-                                  setFormData(prev => ({ ...prev, ai_logo: result.data.url }));
+                                  // 현재 도메인을 붙여서 전체 URL 생성
+                                  const fullUrl = `${window.location.origin}${result.data.url}`;
+                                  setFormData(prev => ({ ...prev, ai_logo: fullUrl }));
                                 } else {
                                   alert('업로드 실패: ' + result.error);
                                 }
