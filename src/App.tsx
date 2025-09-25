@@ -1311,8 +1311,8 @@ function App() {
                               formData.append('icon', file);
                               
                               try {
-                                // API 서버에서 직접 파일 서빙
-                                const response = await fetch(`${API_BASE_URL}/api/ai-services/upload-icon`, {
+                                // Railway proxy를 통해 요청
+                                const response = await fetch(`/api/ai-services/upload-icon`, {
                                   method: 'POST',
                                   body: formData
                                 });
