@@ -1311,23 +1311,16 @@ function App() {
                               formData.append('icon', file);
                               
                               try {
-                                // 프로덕션 환경에서는 AWS S3 사용, 개발환경에서는 로컬 업로드
-                                const isProduction = window.location.hostname !== 'localhost';
-                                const uploadEndpoint = isProduction 
-                                  ? `${API_BASE_URL}/api/ai-services/upload-icon-s3`
-                                  : `${API_BASE_URL}/api/ai-services/upload-icon`;
-                                
-                                const response = await fetch(uploadEndpoint, {
+                                // API 서버에서 직접 파일 서빙
+                                const response = await fetch(`${API_BASE_URL}/api/ai-services/upload-icon`, {
                                   method: 'POST',
                                   body: formData
                                 });
                                 
                                 const result = await response.json();
                                 if (result.success) {
-                                  // S3는 전체 URL을 반환하고, 로컬은 상대 경로를 반환
-                                  const logoUrl = isProduction 
-                                    ? result.data.url 
-                                    : `${API_BASE_URL}${result.data.url}`;
+                                  // 전체 URL로 설정
+                                  const logoUrl = `${API_BASE_URL}${result.data.url}`;
                                   setFormData(prev => ({ ...prev, ai_logo: logoUrl }));
                                 } else {
                                   alert('업로드 실패: ' + result.error);
