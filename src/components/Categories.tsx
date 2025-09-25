@@ -8,7 +8,6 @@ interface Category {
   category_icon?: string;
   parent_id?: number;
   category_order: number;
-  priority: number;
   category_status: 'active' | 'inactive';
   children?: Category[];
 }
@@ -26,7 +25,6 @@ const Categories: React.FC = () => {
     category_name: '',
     category_description: '',
     category_icon: '',
-    priority: 0,
     category_status: 'active' as 'active' | 'inactive'
   });
 
@@ -53,10 +51,10 @@ const Categories: React.FC = () => {
   const organizeCategories = (categoriesData: Category[]): Category[] => {
     return categoriesData
       .filter(cat => !cat.parent_id)
-      .sort((a, b) => b.priority - a.priority || a.category_order - b.category_order)
+      .sort((a, b) => a.category_order - b.category_order)
       .map(cat => ({
         ...cat,
-        children: cat.children?.sort((a, b) => b.priority - a.priority || a.category_order - b.category_order) || []
+        children: cat.children?.sort((a, b) => a.category_order - b.category_order) || []
       }));
   };
 
@@ -117,7 +115,7 @@ const Categories: React.FC = () => {
       category_name: '',
       category_description: '',
       category_icon: '',
-      priority: 0,
+
       category_status: 'active'
     });
   };
@@ -188,7 +186,7 @@ const Categories: React.FC = () => {
         category_name: category.category_name,
         category_description: category.category_description || '',
         category_icon: category.category_icon || '',
-        priority: category.priority || 0,
+
         category_status: category.category_status
       });
       setParentId(category.parent_id || null);
@@ -246,18 +244,7 @@ const Categories: React.FC = () => {
                   placeholder="📁 또는 https://example.com/icon.png"
                 />
               </div>
-              <div className="form-group">
-                <label>우선순위 (높을수록 상단 고정)</label>
-                <input
-                  type="number"
-                  value={formData.priority}
-                  onChange={(e) => setFormData(prev => ({ ...prev, priority: parseInt(e.target.value) || 0 }))}
-                  min="0"
-                  max="999"
-                  placeholder="0"
-                />
-                <small>0: 일반, 1-999: 우선순위 (높을수록 상단에 표시)</small>
-              </div>
+
               <div className="form-actions">
                 <button type="button" onClick={() => setShowForm(false)}>
                   취소

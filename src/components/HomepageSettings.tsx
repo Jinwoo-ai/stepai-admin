@@ -25,13 +25,10 @@ interface AIService {
   is_step_pick: boolean;
 }
 
-interface TrendSection {
+interface Category {
   id: number;
-  section_type: string;
-  section_title: string;
-  section_description?: string;
-  is_active: boolean;
-  display_order: number;
+  category_name: string;
+  category_icon?: string;
 }
 
 interface HomepageVideo {
@@ -54,20 +51,12 @@ interface HomepageCuration {
 interface HomepageService {
   id?: number;
   ai_service_id: number;
+  category_id?: number;
   display_order: number;
   is_active: boolean;
   ai_name?: string;
   ai_logo?: string;
-}
-
-interface TrendService {
-  id?: number;
-  ai_service_id: number;
-  display_order: number;
-  is_featured: boolean;
-  is_active: boolean;
-  ai_name?: string;
-  ai_logo?: string;
+  category_name?: string;
 }
 
 const HomepageSettings: React.FC = () => {
@@ -79,10 +68,9 @@ const HomepageSettings: React.FC = () => {
   const [homepageCurations, setHomepageCurations] = useState<HomepageCuration[]>([]);
   const [homepageServices, setHomepageServices] = useState<HomepageService[]>([]);
   
-  // 트렌드 설정 상태
-  const [trendSections, setTrendSections] = useState<TrendSection[]>([]);
-  const [selectedTrendSection, setSelectedTrendSection] = useState<number | null>(null);
-  const [trendServices, setTrendServices] = useState<TrendService[]>([]);
+  // 카테고리 상태
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   
   // 추가 가능한 항목들
   const [availableVideos, setAvailableVideos] = useState<AIVideo[]>([]);
@@ -95,27 +83,10 @@ const HomepageSettings: React.FC = () => {
 
   const API_BASE = process.env.REACT_APP_API_BASE_URL || '';
 
-  const setupTables = async () => {
-    try {
-      const response = await fetch(`${API_BASE}/api/setup/homepage-settings`, {
-        method: 'POST'
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        alert('메인페이지 설정 테이블이 성공적으로 설정되었습니다.');
-        fetchTrendSections();
-      } else {
-        alert('테이블 설정 실패: ' + data.error);
-      }
-    } catch (error) {
-      console.error('테이블 설정 실패:', error);
-      alert('테이블 설정 중 오류가 발생했습니다.');
-    }
-  };
+
 
   useEffect(() => {
-    fetchTrendSections();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -132,11 +103,11 @@ const HomepageSettings: React.FC = () => {
   }, [activeTab]);
 
   useEffect(() => {
-    if (selectedTrendSection) {
-      fetchTrendServices();
+    if (activeTab === 'step-pick') {
+      fetchHomepageServices();
       fetchAvailableServices();
     }
-  }, [selectedTrendSection]);
+  }, [selectedCategory]);
 
   const fetchHomepageVideos = async () => {
     try {
@@ -164,7 +135,12 @@ const HomepageSettings: React.FC = () => {
 
   const fetchHomepageServices = async () => {
     try {
-      const response = await fetch(`${API_BASE}/api/homepage-settings/step-pick`);
+      const params = new URLSearchParams();
+      if (selectedCategory) {
+        params.append('category_id', selectedCategory.toString());
+      }
+      
+      const response = await fetch(`${API_BASE}/api/homepage-settings/step-pick?${params}`);
       const data = await response.json();
       if (data.success) {
         setHomepageServices(data.data);
@@ -174,32 +150,15 @@ const HomepageSettings: React.FC = () => {
     }
   };
 
-  const fetchTrendSections = async () => {
+  const fetchCategories = async () => {
     try {
-      const response = await fetch(`${API_BASE}/api/homepage-settings/trends`);
+      const response = await fetch(`${API_BASE}/api/homepage-settings/main-categories`);
       const data = await response.json();
       if (data.success) {
-        setTrendSections(data.data);
-        if (data.data.length > 0) {
-          setSelectedTrendSection(data.data[0].id);
-        }
+        setCategories(data.data);
       }
     } catch (error) {
-      console.error('트렌드 섹션 조회 실패:', error);
-    }
-  };
-
-  const fetchTrendServices = async () => {
-    if (!selectedTrendSection) return;
-    
-    try {
-      const response = await fetch(`${API_BASE}/api/homepage-settings/trends/${selectedTrendSection}/services`);
-      const data = await response.json();
-      if (data.success) {
-        setTrendServices(data.data);
-      }
-    } catch (error) {
-      console.error('트렌드 서비스 조회 실패:', error);
+      console.error('카테고리 조회 실패:', error);
     }
   };
 
@@ -229,8 +188,21 @@ const HomepageSettings: React.FC = () => {
 
   const fetchAvailableServices = async () => {
     try {
-      const sectionParam = selectedTrendSection ? `&section_id=${selectedTrendSection}` : '';
-      const response = await fetch(`${API_BASE}/api/homepage-settings/available-services?search=${searchTerm}&limit=50${sectionParam}`);
+      const params = new URLSearchParams();
+      params.append('search', searchTerm);
+      params.append('limit', '50');
+      
+      // STEP PICK 탭에서는 is_step_pick=true인 서비스만 표시
+      if (activeTab === 'step-pick') {
+        params.append('is_step_pick', 'true');
+      }
+      
+      // 카테고리 필터링
+      if (selectedCategory) {
+        params.append('category_id', selectedCategory.toString());
+      }
+      
+      const response = await fetch(`${API_BASE}/api/homepage-settings/available-services?${params}`);
       const data = await response.json();
       if (data.success) {
         setAvailableServices(data.data);
@@ -294,7 +266,10 @@ const HomepageSettings: React.FC = () => {
       const response = await fetch(`${API_BASE}/api/homepage-settings/step-pick`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ services: homepageServices })
+        body: JSON.stringify({ 
+          services: homepageServices,
+          category_id: selectedCategory 
+        })
       });
       
       const data = await response.json();
@@ -312,31 +287,7 @@ const HomepageSettings: React.FC = () => {
     }
   };
 
-  const saveTrendServices = async () => {
-    if (!selectedTrendSection) return;
-    
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE}/api/homepage-settings/trends/${selectedTrendSection}/services`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ services: trendServices })
-      });
-      
-      const data = await response.json();
-      if (data.success) {
-        alert('트렌드 서비스 설정이 저장되었습니다.');
-        fetchAvailableServices();
-      } else {
-        alert(data.error);
-      }
-    } catch (error) {
-      console.error('트렌드 서비스 설정 저장 실패:', error);
-      alert('트렌드 서비스 설정 저장에 실패했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   const moveItem = (items: any[], fromIndex: number, toIndex: number, setter: Function) => {
     const newItems = [...items];
@@ -386,35 +337,20 @@ const HomepageSettings: React.FC = () => {
   };
 
   const addService = (service: AIService) => {
-    if (activeTab === 'step-pick') {
-      const newService: HomepageService = {
-        ai_service_id: service.id,
-        display_order: homepageServices.length + 1,
-        is_active: true,
-        ai_name: service.ai_name,
-        ai_logo: service.ai_logo
-      };
-      setHomepageServices([...homepageServices, newService]);
-    } else if (activeTab === 'trends' && selectedTrendSection) {
-      const newService: TrendService = {
-        ai_service_id: service.id,
-        display_order: trendServices.length + 1,
-        is_featured: false,
-        is_active: true,
-        ai_name: service.ai_name,
-        ai_logo: service.ai_logo
-      };
-      setTrendServices([...trendServices, newService]);
-    }
+    const newService: HomepageService = {
+      ai_service_id: service.id,
+      category_id: selectedCategory || undefined,
+      display_order: homepageServices.length + 1,
+      is_active: true,
+      ai_name: service.ai_name,
+      ai_logo: service.ai_logo
+    };
+    setHomepageServices([...homepageServices, newService]);
     setShowAddModal(false);
     fetchAvailableServices();
   };
 
-  const toggleFeatured = (index: number) => {
-    const newServices = [...trendServices];
-    newServices[index].is_featured = !newServices[index].is_featured;
-    setTrendServices(newServices);
-  };
+
 
   return (
     <div className="categories-page">
@@ -422,13 +358,6 @@ const HomepageSettings: React.FC = () => {
         <h1>메인페이지 관리</h1>
         <div className="header-buttons">
           <p>메인페이지에 표시될 콘텐츠와 트렌드 섹션을 관리합니다.</p>
-          <button 
-            onClick={setupTables}
-            className="btn btn-secondary"
-            title="메인페이지 관리에 필요한 테이블을 생성합니다"
-          >
-            🔧 테이블 설정
-          </button>
         </div>
       </div>
 
@@ -450,12 +379,6 @@ const HomepageSettings: React.FC = () => {
           onClick={() => setActiveTab('step-pick')}
         >
           ⭐ STEP PICK
-        </button>
-        <button 
-          className={activeTab === 'trends' ? 'active' : ''}
-          onClick={() => setActiveTab('trends')}
-        >
-          📈 트렌드 섹션
         </button>
       </div>
 
@@ -570,6 +493,20 @@ const HomepageSettings: React.FC = () => {
             <div className="section-header">
               <h2>메인페이지 STEP PICK 설정</h2>
               <div className="section-actions">
+                <div className="category-selector">
+                  <label>카테고리 선택</label>
+                  <select
+                    value={selectedCategory || ''}
+                    onChange={(e) => setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)}
+                  >
+                    <option value="">전체</option>
+                    {categories.map(category => (
+                      <option key={category.id} value={category.id}>
+                        {category.category_icon} {category.category_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <button onClick={() => setShowAddModal(true)} className="btn btn-secondary">
                   + 서비스 추가
                 </button>
@@ -581,7 +518,7 @@ const HomepageSettings: React.FC = () => {
             
             <div className="items-list">
               {homepageServices.map((service, index) => (
-                <div key={service.ai_service_id} className="item-card">
+                <div key={`${service.ai_service_id}-${service.category_id || 'all'}`} className="item-card">
                   <div className="item-order">{index + 1}</div>
                   <div className="item-content">
                     {service.ai_logo && (
@@ -589,6 +526,9 @@ const HomepageSettings: React.FC = () => {
                     )}
                     <div className="item-info">
                       <h4>{service.ai_name}</h4>
+                      {service.category_name && (
+                        <span className="category-badge">{service.category_name}</span>
+                      )}
                     </div>
                   </div>
                   <div className="item-actions">
@@ -619,86 +559,7 @@ const HomepageSettings: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'trends' && (
-          <div className="section">
-            <div className="trend-sections">
-              <div className="trend-selector">
-                <label>트렌드 섹션 선택</label>
-                <select 
-                  value={selectedTrendSection || ''} 
-                  onChange={(e) => setSelectedTrendSection(Number(e.target.value))}
-                >
-                  {trendSections.map(section => (
-                    <option key={section.id} value={section.id}>
-                      {section.section_title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              {selectedTrendSection && (
-                <div className="trend-content">
-                  <div className="section-header">
-                    <h2>{trendSections.find(s => s.id === selectedTrendSection)?.section_title} 설정</h2>
-                    <div className="section-actions">
-                      <button onClick={() => setShowAddModal(true)} className="btn btn-secondary">
-                        + 서비스 추가
-                      </button>
-                      <button onClick={saveTrendServices} className="btn btn-primary" disabled={loading}>
-                        {loading ? '저장 중...' : '설정 저장'}
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="items-list">
-                    {trendServices.map((service, index) => (
-                      <div key={service.ai_service_id} className="item-card">
-                        <div className="item-order">{index + 1}</div>
-                        <div className="item-content">
-                          {service.ai_logo && (
-                            <img src={service.ai_logo} alt="" className="item-logo" />
-                          )}
-                          <div className="item-info">
-                            <h4>{service.ai_name}</h4>
-                            {service.is_featured && <span className="featured-badge">상단 고정</span>}
-                          </div>
-                        </div>
-                        <div className="item-actions">
-                          <button 
-                            onClick={() => toggleFeatured(index)}
-                            className={`btn-featured ${service.is_featured ? 'active' : ''}`}
-                          >
-                            📌
-                          </button>
-                          <button 
-                            onClick={() => moveItem(trendServices, index, index - 1, setTrendServices)}
-                            disabled={index === 0}
-                            className="btn-move"
-                          >
-                            ↑
-                          </button>
-                          <button 
-                            onClick={() => moveItem(trendServices, index, index + 1, setTrendServices)}
-                            disabled={index === trendServices.length - 1}
-                            className="btn-move"
-                          >
-                            ↓
-                          </button>
-                          <button 
-                            onClick={() => removeItem(trendServices, index, setTrendServices)}
-                            className="btn-remove"
-                          >
-                            🗑️
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+
       </div>
 
       {/* 추가 모달 */}
@@ -709,7 +570,7 @@ const HomepageSettings: React.FC = () => {
               <h3>
                 {activeTab === 'videos' && '영상 추가'}
                 {activeTab === 'curations' && '큐레이션 추가'}
-                {(activeTab === 'step-pick' || activeTab === 'trends') && 'AI 서비스 추가'}
+                {activeTab === 'step-pick' && 'AI 서비스 추가'}
               </h3>
               <button onClick={() => setShowAddModal(false)} className="btn-close">×</button>
             </div>
@@ -753,7 +614,7 @@ const HomepageSettings: React.FC = () => {
                   </div>
                 ))}
                 
-                {(activeTab === 'step-pick' || activeTab === 'trends') && availableServices.map(service => (
+                {activeTab === 'step-pick' && availableServices.map(service => (
                   <div key={service.id} className="available-item" onClick={() => addService(service)}>
                     {service.ai_logo && (
                       <img src={service.ai_logo} alt="" className="item-logo" />

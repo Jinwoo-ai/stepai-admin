@@ -10,6 +10,7 @@ import Dashboard from './components/Dashboard';
 import SiteSettings from './components/SiteSettings';
 import Tags, { TagOption } from './components/Tags';
 import AdPartnerships from './components/AdPartnerships';
+import TrendMenu from './components/TrendMenu';
 import './App.css';
 
 interface AIService {
@@ -2162,6 +2163,7 @@ function App() {
           <h2>StepAI Admin</h2>
         </div>
         <ul className="nav-menu">
+          {/* 대시보드 */}
           <li>
             <button
               className={currentPage === 'dashboard' ? 'active' : ''}
@@ -2170,62 +2172,94 @@ function App() {
               📊 대시보드
             </button>
           </li>
-          <li>
-            <button
-              className={currentPage === 'categories' ? 'active' : ''}
-              onClick={() => setCurrentPage('categories')}
-            >
-              📁 카테고리
-            </button>
+          
+          {/* 컨텐츠 관리 */}
+          <li className="menu-group">
+            <div className="menu-group-title">📝 컨텐츠 관리</div>
+            <ul className="submenu">
+              <li>
+                <button
+                  className={currentPage === 'categories' ? 'active' : ''}
+                  onClick={() => setCurrentPage('categories')}
+                >
+                  📁 카테고리
+                </button>
+              </li>
+              <li>
+                <button
+                  className={currentPage === 'tags' ? 'active' : ''}
+                  onClick={() => setCurrentPage('tags')}
+                >
+                  🏷️ 태그
+                </button>
+              </li>
+              <li>
+                <button
+                  className={currentPage === 'ai-services' ? 'active' : ''}
+                  onClick={() => setCurrentPage('ai-services')}
+                >
+                  🤖 AI서비스
+                </button>
+              </li>
+              <li>
+                <button
+                  className={currentPage === 'ai-videos' ? 'active' : ''}
+                  onClick={() => setCurrentPage('ai-videos')}
+                >
+                  🎥 영상콘텐츠
+                </button>
+              </li>
+              <li>
+                <button
+                  className={currentPage === 'curations' ? 'active' : ''}
+                  onClick={() => setCurrentPage('curations')}
+                >
+                  📋 큐레이션
+                </button>
+              </li>
+            </ul>
           </li>
-          <li>
-            <button
-              className={currentPage === 'category-display-order' ? 'active' : ''}
-              onClick={() => setCurrentPage('category-display-order')}
-            >
-              📋 카테고리 표시순서
-            </button>
+          
+          {/* 홈페이지관리 */}
+          <li className="menu-group">
+            <div className="menu-group-title">🏠 홈페이지관리</div>
+            <ul className="submenu">
+              <li>
+                <button
+                  className={currentPage === 'homepage-settings' ? 'active' : ''}
+                  onClick={() => setCurrentPage('homepage-settings')}
+                >
+                  🏠 메인페이지
+                </button>
+              </li>
+              <li>
+                <button
+                  className={currentPage === 'category-display-order' ? 'active' : ''}
+                  onClick={() => setCurrentPage('category-display-order')}
+                >
+                  📋 카테고리메뉴
+                </button>
+              </li>
+              <li>
+                <button
+                  className={currentPage === 'trend-menu' ? 'active' : ''}
+                  onClick={() => setCurrentPage('trend-menu')}
+                >
+                  📈 트렌드메뉴
+                </button>
+              </li>
+              <li>
+                <button
+                  className={currentPage === 'site-settings' ? 'active' : ''}
+                  onClick={() => setCurrentPage('site-settings')}
+                >
+                  ⚙️ 사이트 정보
+                </button>
+              </li>
+            </ul>
           </li>
-          <li>
-            <button
-              className={currentPage === 'homepage-settings' ? 'active' : ''}
-              onClick={() => setCurrentPage('homepage-settings')}
-            >
-              🏠 메인페이지 관리
-            </button>
-          </li>
-          <li>
-            <button
-              className={currentPage === 'tags' ? 'active' : ''}
-              onClick={() => setCurrentPage('tags')}
-            >
-              🏷️ 태그 관리
-            </button>
-          </li>
-          <li>
-            <button
-              className={currentPage === 'ai-services' ? 'active' : ''}
-              onClick={() => setCurrentPage('ai-services')}
-            >
-              🤖 AI 서비스
-            </button>
-          </li>
-          <li>
-            <button
-              className={currentPage === 'ai-videos' ? 'active' : ''}
-              onClick={() => setCurrentPage('ai-videos')}
-            >
-              🎥 영상 콘텐츠
-            </button>
-          </li>
-          <li>
-            <button
-              className={currentPage === 'curations' ? 'active' : ''}
-              onClick={() => setCurrentPage('curations')}
-            >
-              📋 큐레이션
-            </button>
-          </li>
+          
+          {/* 회원관리 */}
           <li>
             <button
               className={currentPage === 'users' ? 'active' : ''}
@@ -2234,6 +2268,8 @@ function App() {
               👥 회원관리
             </button>
           </li>
+          
+          {/* 광고제휴 */}
           <li>
             <button
               className={currentPage === 'ad-partnerships' ? 'active' : ''}
@@ -2242,29 +2278,22 @@ function App() {
               🤝 광고제휴
             </button>
           </li>
-          <li>
-            <button
-              className={currentPage === 'site-settings' ? 'active' : ''}
-              onClick={() => setCurrentPage('site-settings')}
-            >
-              ⚙️ 사이트 정보
-            </button>
-          </li>
         </ul>
       </nav>
 
       <main className="main-content">
         {currentPage === 'dashboard' && <Dashboard />}
         {currentPage === 'categories' && <Categories />}
-        {currentPage === 'category-display-order' && <CategoryDisplayOrder />}
-        {currentPage === 'homepage-settings' && <HomepageSettings />}
+        {currentPage === 'tags' && <Tags />}
         {currentPage === 'ai-services' && renderAIServices()}
         {currentPage === 'ai-videos' && renderAIVideos()}
         {currentPage === 'curations' && <Curations />}
-        {currentPage === 'users' && <Users />}
-        {currentPage === 'tags' && <Tags />}
-        {currentPage === 'ad-partnerships' && <AdPartnerships />}
+        {currentPage === 'homepage-settings' && <HomepageSettings />}
+        {currentPage === 'category-display-order' && <CategoryDisplayOrder />}
+        {currentPage === 'trend-menu' && <TrendMenu />}
         {currentPage === 'site-settings' && <SiteSettings />}
+        {currentPage === 'users' && <Users />}
+        {currentPage === 'ad-partnerships' && <AdPartnerships />}
       </main>
     </div>
   );

@@ -60,17 +60,23 @@ const CategoryDisplayOrder: React.FC = () => {
       const response = await fetch(`${API_BASE}/api/categories`);
       const data = await response.json();
       if (data.success) {
-        // 플랫 구조로 변환 (부모 + 자식)
-        const flatCategories: Category[] = [];
+        // 계층 구조로 변환 (부모 > 자식 형태)
+        const hierarchicalCategories: Category[] = [];
         data.data.forEach((parent: any) => {
-          flatCategories.push(parent);
+          hierarchicalCategories.push({
+            ...parent,
+            category_name: parent.category_name
+          });
           if (parent.children) {
             parent.children.forEach((child: any) => {
-              flatCategories.push(child);
+              hierarchicalCategories.push({
+                ...child,
+                category_name: `  └ ${child.category_name}`
+              });
             });
           }
         });
-        setCategories(flatCategories);
+        setCategories(hierarchicalCategories);
       }
     } catch (error) {
       console.error('카테고리 조회 실패:', error);
