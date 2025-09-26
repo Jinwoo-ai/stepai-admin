@@ -105,7 +105,7 @@ const CategoryDisplayOrder: React.FC = () => {
     if (!selectedCategory) return;
     
     try {
-      const response = await fetch(`${API_BASE}/api/category-display-order/available-services?category_id=${selectedCategory}&search=${searchTerm}&limit=50`);
+      const response = await fetch(`${API_BASE}/api/category-display-order/available-services?category_id=${selectedCategory}&search=${searchTerm}&limit=1000`);
       const data = await response.json();
       if (data.success) {
         setAvailableServices(data.data);

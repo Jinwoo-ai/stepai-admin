@@ -1559,8 +1559,27 @@ td {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-height: 400px;
+  max-height: 600px;
   overflow-y: auto;
+  padding-right: 8px;
+}
+
+.available-items::-webkit-scrollbar {
+  width: 6px;
+}
+
+.available-items::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.available-items::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.available-items::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 .available-item {
