@@ -825,8 +825,8 @@ td {
 
 .filter-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 15px;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 10px;
   align-items: center;
 }
 
@@ -3336,4 +3336,40 @@ input:disabled {
   border-radius: 4px;
   white-space: pre-wrap;
   font-style: italic;
+}
+/* New 버튼 스타일 추가 */
+.new-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.new-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.new-btn.active {
+  background-color: #e8f5e8;
+}
+
+.step-pick-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.step-pick-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.step-pick-btn.active {
+  background-color: #fff3cd;
 }

@@ -38,6 +38,7 @@ interface AIService {
   ai_status?: string;
   is_visible?: boolean;
   is_step_pick?: boolean;
+  is_new?: boolean;
   nationality?: string;
   created_at?: string;
   categories?: Category[];
@@ -116,6 +117,7 @@ function App() {
     category_id: '',
     ai_status: '',
     is_step_pick: '',
+    is_new: '',
     date_from: '',
     date_to: ''
   });
@@ -153,6 +155,7 @@ function App() {
     nationality: '',
     is_visible: true,
     is_step_pick: false,
+    is_new: false,
     categories: [] as { category_id: number; is_main: boolean; category_name: string; parent_name?: string }[],
     contents: [
       { content_type: 'target_users', content_title: '타겟 사용자', content_text: '', content_order: 1 },
@@ -262,6 +265,7 @@ function App() {
       if (filters.category_id) params.append('category_id', filters.category_id);
       if (filters.ai_status) params.append('ai_status', filters.ai_status);
       if (filters.is_step_pick) params.append('is_step_pick', filters.is_step_pick);
+      if (filters.is_new) params.append('is_new', filters.is_new);
       
       const response = await fetch(`${API_BASE_URL}/api/ai-services?${params}&include_categories=true`);
       const data = await response.json();
@@ -429,6 +433,7 @@ function App() {
       nationality: '',
       is_visible: true,
       is_step_pick: false,
+      is_new: false,
       categories: [],
       contents: [
         { content_type: 'target_users', content_title: '타겟 사용자', content_text: '', content_order: 1 },
@@ -468,6 +473,21 @@ function App() {
       }
     } catch (error) {
       console.error('Error updating step pick:', error);
+    }
+  };
+
+  const toggleNew = async (service: AIService) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/ai-services/${service.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_new: !service.is_new }),
+      });
+      if (response.ok) {
+        fetchAIServices();
+      }
+    } catch (error) {
+      console.error('Error updating new status:', error);
     }
   };
 
@@ -1207,6 +1227,14 @@ function App() {
             <option value="true">Step Pick</option>
             <option value="false">일반</option>
           </select>
+          <select
+            value={filters.is_new}
+            onChange={(e) => setFilters(prev => ({ ...prev, is_new: e.target.value }))}
+          >
+            <option value="">New 전체</option>
+            <option value="true">New</option>
+            <option value="false">일반</option>
+          </select>
         </div>
       </div>
 
@@ -1481,6 +1509,16 @@ function App() {
                         onChange={(e) => setFormData(prev => ({ ...prev, is_step_pick: e.target.checked }))}
                       />
                       Step Pick (표시위치)
+                    </label>
+                  </div>
+                  <div className="form-group">
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={formData.is_new}
+                        onChange={(e) => setFormData(prev => ({ ...prev, is_new: e.target.checked }))}
+                      />
+                      New 표시
                     </label>
                   </div>
                 </div>
@@ -2022,6 +2060,7 @@ function App() {
                 <th>AI서비스명</th>
                 <th>등록일</th>
                 <th>Step Pick</th>
+                <th>New</th>
                 <th>상태</th>
                 <th>작업</th>
               </tr>
@@ -2067,6 +2106,14 @@ function App() {
                     </button>
                   </td>
                   <td>
+                    <button
+                      onClick={() => toggleNew(service)}
+                      className={`new-btn ${service.is_new ? 'active' : ''}`}
+                    >
+                      {service.is_new ? '🆕' : '◯'}
+                    </button>
+                  </td>
+                  <td>
                     <span className={`status ${service.ai_status}`}>
                       {service.ai_status}
                     </span>
@@ -2094,6 +2141,7 @@ function App() {
                           nationality: service.nationality || '',
                           is_visible: service.is_visible ?? true,
                           is_step_pick: service.is_step_pick ?? false,
+                          is_new: service.is_new ?? false,
                           categories: service.categories?.map(cat => ({
                             category_id: cat.id,
                             is_main: !!cat.is_main_category,

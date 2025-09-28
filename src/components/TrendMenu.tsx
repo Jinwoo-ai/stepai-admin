@@ -382,8 +382,10 @@ const TrendMenu: React.FC = () => {
                     type="text"
                     value={section.section_title}
                     onChange={(e) => {
-                      const updatedSection = { ...section, section_title: e.target.value };
-                      updateTrendSection(updatedSection);
+                      const updatedSections = trendSections.map(s => 
+                        s.id === section.id ? { ...s, section_title: e.target.value } : s
+                      );
+                      setTrendSections(updatedSections);
                     }}
                   />
                 </div>
@@ -392,11 +394,21 @@ const TrendMenu: React.FC = () => {
                   <textarea
                     value={section.section_description}
                     onChange={(e) => {
-                      const updatedSection = { ...section, section_description: e.target.value };
-                      updateTrendSection(updatedSection);
+                      const updatedSections = trendSections.map(s => 
+                        s.id === section.id ? { ...s, section_description: e.target.value } : s
+                      );
+                      setTrendSections(updatedSections);
                     }}
                     rows={2}
                   />
+                </div>
+                <div className="form-group">
+                  <button 
+                    onClick={() => updateTrendSection(section)}
+                    className="btn btn-primary btn-small"
+                  >
+                    저장
+                  </button>
                 </div>
                 <div className="form-group">
                   <label className="checkbox-label">
