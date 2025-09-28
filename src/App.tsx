@@ -1895,7 +1895,7 @@ function App() {
               <div className="info-header">
                 <h4>엑셀 파일 형식</h4>
                 <a 
-                  href={`${API_BASE_URL}/public/ai_services_template.xlsx`}
+                  href={`${API_BASE_URL}/api/ai-services/sample-excel`}
                   download="ai_services_template.xlsx"
                   className="btn btn-secondary btn-small"
                   style={{ textDecoration: 'none', display: 'inline-block' }}
@@ -1907,7 +1907,8 @@ function App() {
               <p>다음 열 순서로 작성해주세요:</p>
               <ul>
                 <li><strong>Alive</strong> (Yes/No) - 서비스 활성 상태</li>
-                <li><strong>표시위치</strong> (STEP_PICK/빈값) - 우선 표시 여부</li>
+                <li><strong>표시위치</strong> (STEP_PICK/빈값) - 메인페이지 STEP PICK 섹션 표시</li>
+                <li><strong>NEW</strong> (Yes/No) - 신규 서비스 표시 (카드에 NEW 배지 표시)</li>
                 <li><strong>서비스명(영문)</strong> - 영문 서비스명</li>
                 <li><strong>서비스명(국문)</strong> (필수) - 한글 서비스명</li>
                 <li><strong>기업명(영문)</strong> - 영문 기업명</li>
@@ -1915,9 +1916,10 @@ function App() {
                 <li><strong>임베디드 영상 URL</strong> - 소개 영상 URL</li>
                 <li><strong>본사</strong> - 본사 소재지</li>
                 <li><strong>대표 URL</strong> - 서비스 공식 웹사이트</li>
-                <li><strong>로고(URL)</strong> - 로고 이미지 URL</li>
+
                 <li><strong>형태</strong> (필수) - WEB, MOB, DES, EXT, API 등 (쉼표로 구분)</li>
-                <li><strong>메인 카테고리</strong> - 대분류</li>
+                <li><strong>메인 카테고리</strong> - 대분류 (대표 카테고리 1개)</li>
+                <li><strong>서브 카테고리</strong> - 메인 카테고리 외 추가 분류 (쉼표로 구분하여 여러 개)</li>
                 <li><strong>Tags</strong> - 태그 (#태그1 #태그2 형식)</li>
                 <li><strong>Target</strong> - B, C, G 등 대상 고객 (쉼표로 구분)</li>
                 <li><strong>Price</strong> - 유료, 무료, 프리미엄 등 (쉼표로 구분)</li>
