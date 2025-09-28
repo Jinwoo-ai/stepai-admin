@@ -9,6 +9,7 @@ interface Curation {
   curation_order: number;
   curation_status: string;
   created_at?: string;
+  service_count?: number;
   ai_services?: AIService[];
 }
 
@@ -34,7 +35,6 @@ const Curations: React.FC = () => {
   const [formData, setFormData] = useState({
     curation_title: '',
     curation_description: '',
-    curation_thumbnail: '',
     curation_order: 0,
     curation_status: 'active',
     ai_service_ids: [] as number[]
@@ -117,7 +117,6 @@ const Curations: React.FC = () => {
     setFormData({
       curation_title: '',
       curation_description: '',
-      curation_thumbnail: '',
       curation_order: 0,
       curation_status: 'active',
       ai_service_ids: []
@@ -229,23 +228,13 @@ const Curations: React.FC = () => {
                     }}
                   />
                 </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>썸네일 URL</label>
-                    <input
-                      type="url"
-                      value={formData.curation_thumbnail}
-                      onChange={(e) => setFormData(prev => ({ ...prev, curation_thumbnail: e.target.value }))}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>순서</label>
-                    <input
-                      type="number"
-                      value={formData.curation_order}
-                      onChange={(e) => setFormData(prev => ({ ...prev, curation_order: parseInt(e.target.value) }))}
-                    />
-                  </div>
+                <div className="form-group">
+                  <label>순서</label>
+                  <input
+                    type="number"
+                    value={formData.curation_order}
+                    onChange={(e) => setFormData(prev => ({ ...prev, curation_order: parseInt(e.target.value) }))}
+                  />
                 </div>
                 <div className="form-group">
                   <label>상태</label>
@@ -394,7 +383,6 @@ const Curations: React.FC = () => {
             <thead>
               <tr>
                 <th>No</th>
-                <th>썸네일</th>
                 <th>큐레이션 제목</th>
                 <th>포함된 서비스 수</th>
                 <th>순서</th>
@@ -408,14 +396,9 @@ const Curations: React.FC = () => {
                 <tr key={curation.id}>
                   <td>{index + 1}</td>
                   <td>
-                    {curation.curation_thumbnail && (
-                      <img src={curation.curation_thumbnail} alt="thumbnail" className="curation-thumbnail" />
-                    )}
-                  </td>
-                  <td>
                     <div className="curation-title">{curation.curation_title}</div>
                   </td>
-                  <td>{curation.ai_services?.length || 0}개</td>
+                  <td>{curation.service_count || 0}개</td>
                   <td>{curation.curation_order}</td>
                   <td>
                     <span className={`status ${curation.curation_status}`}>
@@ -425,17 +408,28 @@ const Curations: React.FC = () => {
                   <td>{curation.created_at ? new Date(curation.created_at).toLocaleDateString() : ''}</td>
                   <td>
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         setEditingCuration(curation);
                         setFormData({
                           curation_title: curation.curation_title,
                           curation_description: curation.curation_description || '',
-                          curation_thumbnail: curation.curation_thumbnail || '',
                           curation_order: curation.curation_order,
                           curation_status: curation.curation_status,
-                          ai_service_ids: curation.ai_services?.map(s => s.id) || []
+                          ai_service_ids: []
                         });
-                        setSelectedServices(curation.ai_services || []);
+                        
+                        // 기존 서비스 목록 불러오기
+                        try {
+                          const response = await fetch(`${API_BASE_URL}/api/curations/${curation.id}/services`);
+                          const data = await response.json();
+                          if (data.success) {
+                            setSelectedServices(data.data || []);
+                          }
+                        } catch (error) {
+                          console.error('Error fetching curation services:', error);
+                          setSelectedServices([]);
+                        }
+                        
                         setShowForm(true);
                       }}
                       className="btn-edit"

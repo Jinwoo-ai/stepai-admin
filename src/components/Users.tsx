@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 
 interface User {
   id?: number;
-  username: string;
+  name: string;
   email: string;
+  industry?: string;
+  job_role?: string;
+  job_level?: string;
+  experience_years?: number;
   user_type: string;
   user_status: string;
   created_at?: string;
@@ -24,9 +28,12 @@ const Users: React.FC = () => {
   });
 
   const [formData, setFormData] = useState({
-    username: '',
+    name: '',
     email: '',
-    password_hash: '',
+    industry: '',
+    job_role: '',
+    job_level: '',
+    experience_years: 0,
     user_type: 'member',
     user_status: 'active'
   });
@@ -63,7 +70,16 @@ const Users: React.FC = () => {
         : `${API_BASE_URL}/api/users`;
       
       const submitData = editingUser 
-        ? { username: formData.username, email: formData.email, user_type: formData.user_type, user_status: formData.user_status }
+        ? { 
+            name: formData.name, 
+            email: formData.email, 
+            industry: formData.industry,
+            job_role: formData.job_role,
+            job_level: formData.job_level,
+            experience_years: formData.experience_years,
+            user_type: formData.user_type, 
+            user_status: formData.user_status 
+          }
         : formData;
       
       const response = await fetch(url, {
@@ -85,9 +101,12 @@ const Users: React.FC = () => {
 
   const resetForm = () => {
     setFormData({
-      username: '',
+      name: '',
       email: '',
-      password_hash: '',
+      industry: '',
+      job_role: '',
+      job_level: '',
+      experience_years: 0,
       user_type: 'member',
       user_status: 'active'
     });
@@ -129,7 +148,7 @@ const Users: React.FC = () => {
         <div className="filter-row">
           <input
             type="text"
-            placeholder="사용자명 또는 이메일 검색"
+            placeholder="이름 또는 이메일 검색"
             value={filters.search}
             onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
           />
@@ -158,56 +177,97 @@ const Users: React.FC = () => {
           <div className="form-container">
             <h2>{editingUser ? '회원 정보 수정' : '새 회원 등록'}</h2>
             <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>사용자명 *</label>
-                <input
-                  type="text"
-                  value={formData.username}
-                  onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>이메일 *</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  required
-                />
-              </div>
-              {!editingUser && (
+              <div className="form-section">
+                <h3>기본 정보</h3>
                 <div className="form-group">
-                  <label>비밀번호 *</label>
+                  <label>이름 *</label>
                   <input
-                    type="password"
-                    value={formData.password_hash}
-                    onChange={(e) => setFormData(prev => ({ ...prev, password_hash: e.target.value }))}
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                     required
                   />
                 </div>
-              )}
-              <div className="form-row">
                 <div className="form-group">
-                  <label>회원 타입</label>
-                  <select
-                    value={formData.user_type}
-                    onChange={(e) => setFormData(prev => ({ ...prev, user_type: e.target.value }))}
-                  >
-                    <option value="member">일반 회원</option>
-                    <option value="admin">관리자</option>
-                  </select>
+                  <label>이메일 *</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    required
+                  />
                 </div>
-                <div className="form-group">
-                  <label>상태</label>
-                  <select
-                    value={formData.user_status}
-                    onChange={(e) => setFormData(prev => ({ ...prev, user_status: e.target.value }))}
-                  >
-                    <option value="active">활성</option>
-                    <option value="inactive">비활성</option>
-                    <option value="pending">대기</option>
-                  </select>
+              </div>
+              
+              <div className="form-section">
+                <h3>직업 정보</h3>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>업종</label>
+                    <input
+                      type="text"
+                      value={formData.industry}
+                      onChange={(e) => setFormData(prev => ({ ...prev, industry: e.target.value }))}
+                      placeholder="예: IT, 금융, 제조업"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>직무</label>
+                    <input
+                      type="text"
+                      value={formData.job_role}
+                      onChange={(e) => setFormData(prev => ({ ...prev, job_role: e.target.value }))}
+                      placeholder="예: 개발자, 마케터, 디자이너"
+                    />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>직급</label>
+                    <input
+                      type="text"
+                      value={formData.job_level}
+                      onChange={(e) => setFormData(prev => ({ ...prev, job_level: e.target.value }))}
+                      placeholder="예: 사원, 대리, 과장"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>경력 (년)</label>
+                    <input
+                      type="number"
+                      value={formData.experience_years}
+                      onChange={(e) => setFormData(prev => ({ ...prev, experience_years: parseInt(e.target.value) || 0 }))}
+                      min="0"
+                      max="50"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="form-section">
+                <h3>계정 설정</h3>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>회원 타입</label>
+                    <select
+                      value={formData.user_type}
+                      onChange={(e) => setFormData(prev => ({ ...prev, user_type: e.target.value }))}
+                    >
+                      <option value="member">일반 회원</option>
+                      <option value="admin">관리자</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>상태</label>
+                    <select
+                      value={formData.user_status}
+                      onChange={(e) => setFormData(prev => ({ ...prev, user_status: e.target.value }))}
+                    >
+                      <option value="active">활성</option>
+                      <option value="inactive">비활성</option>
+                      <option value="pending">대기</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -232,8 +292,12 @@ const Users: React.FC = () => {
             <thead>
               <tr>
                 <th>No</th>
-                <th>사용자명</th>
+                <th>이름</th>
                 <th>이메일</th>
+                <th>업종</th>
+                <th>직무</th>
+                <th>직급</th>
+                <th>경력</th>
                 <th>회원 타입</th>
                 <th>상태</th>
                 <th>가입일</th>
@@ -244,8 +308,12 @@ const Users: React.FC = () => {
               {users.map((user, index) => (
                 <tr key={user.id}>
                   <td>{index + 1}</td>
-                  <td>{user.username}</td>
+                  <td>{user.name}</td>
                   <td>{user.email}</td>
+                  <td>{user.industry || '-'}</td>
+                  <td>{user.job_role || '-'}</td>
+                  <td>{user.job_level || '-'}</td>
+                  <td>{user.experience_years ? `${user.experience_years}년` : '-'}</td>
                   <td>
                     <span className={`user-type ${user.user_type}`}>
                       {user.user_type === 'admin' ? '관리자' : '일반 회원'}
@@ -263,9 +331,12 @@ const Users: React.FC = () => {
                       onClick={() => {
                         setEditingUser(user);
                         setFormData({
-                          username: user.username,
+                          name: user.name,
                           email: user.email,
-                          password_hash: '',
+                          industry: user.industry || '',
+                          job_role: user.job_role || '',
+                          job_level: user.job_level || '',
+                          experience_years: user.experience_years || 0,
                           user_type: user.user_type,
                           user_status: user.user_status
                         });
