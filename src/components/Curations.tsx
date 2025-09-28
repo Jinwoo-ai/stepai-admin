@@ -75,7 +75,7 @@ const Curations: React.FC = () => {
     }
     
     try {
-      const response = await fetch(`${API_BASE_URL}/api/ai-services/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`${API_BASE_URL}/api/ai-services/admin-search?q=${encodeURIComponent(query)}`);
       const data = await response.json();
       if (data.success) {
         setServiceResults(data.data || []);
