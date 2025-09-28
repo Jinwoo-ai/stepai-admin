@@ -377,7 +377,7 @@ function App() {
     }
     
     try {
-      const response = await fetch(`${API_BASE_URL}/api/ai-services/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`${API_BASE_URL}/api/ai-services/admin-search?q=${encodeURIComponent(query)}`);
       const data = await response.json();
       if (data.success) {
         setSimilarServiceResults(data.data || []);
@@ -680,7 +680,7 @@ function App() {
     }
     
     try {
-      const response = await fetch(`${API_BASE_URL}/api/ai-services/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`${API_BASE_URL}/api/ai-services/admin-search?q=${encodeURIComponent(query)}`);
       const data = await response.json();
       if (data.success) {
         setVideoServiceResults(data.data || []);
