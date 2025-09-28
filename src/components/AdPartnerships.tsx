@@ -23,7 +23,11 @@ interface AdPartnership {
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
 
-const AdPartnerships: React.FC = () => {
+interface AdPartnershipsProps {
+  onUpdate?: () => void;
+}
+
+const AdPartnerships: React.FC<AdPartnershipsProps> = ({ onUpdate }) => {
   const [partnerships, setPartnerships] = useState<AdPartnership[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPartnership, setSelectedPartnership] = useState<AdPartnership | null>(null);
@@ -83,6 +87,7 @@ const AdPartnerships: React.FC = () => {
       
       if (response.data.success) {
         fetchPartnerships();
+        onUpdate?.(); // 미처리 건수 업데이트
         setShowModal(false);
         setSelectedPartnership(null);
       }
@@ -99,6 +104,7 @@ const AdPartnerships: React.FC = () => {
       
       if (response.data.success) {
         fetchPartnerships();
+        onUpdate?.(); // 미처리 건수 업데이트
       }
     } catch (error) {
       console.error('광고제휴 삭제 실패:', error);

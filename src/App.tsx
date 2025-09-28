@@ -10,6 +10,7 @@ import Dashboard from './components/Dashboard';
 import SiteSettings from './components/SiteSettings';
 import Tags, { TagOption } from './components/Tags';
 import AdPartnerships from './components/AdPartnerships';
+import Inquiries from './components/Inquiries';
 import TrendMenu from './components/TrendMenu';
 import './App.css';
 
@@ -96,6 +97,10 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('ai-services');
+  const [pendingCounts, setPendingCounts] = useState({
+    adPartnerships: 0,
+    inquiries: 0
+  });
   const [aiServices, setAiServices] = useState<AIService[]>([]);
   const [aiVideos, setAiVideos] = useState<AIVideo[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -187,6 +192,30 @@ function App() {
   const [videoServiceSearch, setVideoServiceSearch] = useState('');
   const [videoServiceResults, setVideoServiceResults] = useState<AIService[]>([]);
   const [selectedVideoServices, setSelectedVideoServices] = useState<AIService[]>([]);
+
+  // 미처리 건수 조회
+  useEffect(() => {
+    fetchPendingCounts();
+  }, []);
+
+  const fetchPendingCounts = async () => {
+    try {
+      // 광고제휴 미처리 건수
+      const adResponse = await fetch(`${API_BASE_URL}/api/ad-partnerships?inquiry_status=pending&limit=1`);
+      const adData = await adResponse.json();
+      
+      // 고객문의 미처리 건수
+      const inquiryResponse = await fetch(`${API_BASE_URL}/api/inquiries?inquiry_status=pending&limit=1`);
+      const inquiryData = await inquiryResponse.json();
+      
+      setPendingCounts({
+        adPartnerships: adData.success ? adData.data?.pagination?.total || 0 : 0,
+        inquiries: inquiryData.success ? inquiryData.data?.pagination?.total || 0 : 0
+      });
+    } catch (error) {
+      console.error('Error fetching pending counts:', error);
+    }
+  };
 
   // AI 서비스 페이지에서만 필요한 API 호출
   useEffect(() => {
@@ -2276,6 +2305,22 @@ function App() {
               onClick={() => setCurrentPage('ad-partnerships')}
             >
               🤝 광고제휴
+              {pendingCounts.adPartnerships > 0 && (
+                <span className="pending-badge">{pendingCounts.adPartnerships}</span>
+              )}
+            </button>
+          </li>
+          
+          {/* 고객문의 */}
+          <li>
+            <button
+              className={currentPage === 'inquiries' ? 'active' : ''}
+              onClick={() => setCurrentPage('inquiries')}
+            >
+              📞 고객문의
+              {pendingCounts.inquiries > 0 && (
+                <span className="pending-badge">{pendingCounts.inquiries}</span>
+              )}
             </button>
           </li>
         </ul>
@@ -2293,7 +2338,8 @@ function App() {
         {currentPage === 'trend-menu' && <TrendMenu />}
         {currentPage === 'site-settings' && <SiteSettings />}
         {currentPage === 'users' && <Users />}
-        {currentPage === 'ad-partnerships' && <AdPartnerships />}
+        {currentPage === 'ad-partnerships' && <AdPartnerships onUpdate={fetchPendingCounts} />}
+        {currentPage === 'inquiries' && <Inquiries onUpdate={fetchPendingCounts} />}
       </main>
     </div>
   );

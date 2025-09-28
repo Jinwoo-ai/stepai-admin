@@ -3145,3 +3145,195 @@ input:disabled {
   padding: 8px 10px;
   font-size: 13px;
 }
+
+/* 미처리 건수 배지 */
+.pending-badge {
+  background: #ff4444;
+  color: white;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: bold;
+  margin-left: 5px;
+  min-width: 18px;
+  text-align: center;
+  display: inline-block;
+}
+
+/* 고객문의 관련 스타일 */
+.inquiry-type {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.inquiry-type.general {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.inquiry-type.technical {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.inquiry-type.partnership {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.inquiry-type.bug_report {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.inquiry-type.feature_request {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.inquiry-subject {
+  font-weight: 500;
+  color: #333;
+}
+
+.attachment-icon {
+  margin-left: 8px;
+  color: #666;
+}
+
+.inquirer-name {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.inquirer-email {
+  font-size: 12px;
+  color: #666;
+}
+
+.status.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status.in_progress {
+  background: #cce5ff;
+  color: #0066cc;
+}
+
+.status.resolved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status.closed {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.btn-view {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  margin: 0 2px;
+}
+
+.btn-view:hover {
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.status-select {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 12px;
+  margin: 0 2px;
+}
+
+.inquiry-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-section {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.detail-section h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detail-item label {
+  font-weight: 600;
+  color: #666;
+  font-size: 14px;
+}
+
+.detail-item span {
+  color: #333;
+  font-size: 14px;
+}
+
+.inquiry-subject-detail {
+  font-weight: 500;
+  color: #333;
+  font-size: 16px;
+  padding: 10px;
+  background: white;
+  border-radius: 4px;
+}
+
+.inquiry-message {
+  color: #333;
+  line-height: 1.6;
+  padding: 15px;
+  background: white;
+  border-radius: 4px;
+  white-space: pre-wrap;
+}
+
+.attachment-link {
+  color: #007bff;
+  text-decoration: none;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.attachment-link:hover {
+  background: #e3f2fd;
+}
+
+.admin-notes {
+  color: #333;
+  line-height: 1.6;
+  padding: 15px;
+  background: white;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  font-style: italic;
+}
