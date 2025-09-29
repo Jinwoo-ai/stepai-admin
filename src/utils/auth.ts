@@ -71,10 +71,20 @@ export const authUtils = {
 
   // 인증이 필요한 API 요청
   authenticatedFetch: async (url: string, options: RequestInit = {}): Promise<Response> => {
-    const headers = {
-      ...authUtils.getAuthHeaders(),
-      ...options.headers,
+    const token = authUtils.getToken();
+    const headers: Record<string, string> = {
+      ...options.headers as Record<string, string>,
     };
+    
+    // 토큰이 있으면 Authorization 헤더 추가
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    // FormData가 아닌 경우에만 Content-Type 설정
+    if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
+    }
 
     const response = await fetch(url, {
       ...options,
