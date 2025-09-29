@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { authUtils } from '../utils/auth';
 
 export interface TagOption {
   id: number;
@@ -40,7 +41,7 @@ const Tags: React.FC = () => {
   const fetchTags = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tags`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/tags`);
       const data = await response.json();
       if (data.success) {
         setTags(data.data || []);
@@ -53,7 +54,7 @@ const Tags: React.FC = () => {
 
   const fetchTagItems = async (tagId: number) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tags/${tagId}/items`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/tags/${tagId}/items`);
       const data = await response.json();
       if (data.success) {
         setTagItems(data.data);
@@ -66,7 +67,7 @@ const Tags: React.FC = () => {
   const removeServiceFromTag = async (tagId: number, serviceId: number) => {
     if (window.confirm('이 태그에서 AI 서비스를 제거하시겠습니까?')) {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/tags/${tagId}/services/${serviceId}`, {
+        const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/tags/${tagId}/services/${serviceId}`, {
           method: 'DELETE',
         });
         if (response.ok) {
@@ -84,7 +85,7 @@ const Tags: React.FC = () => {
   const removeVideoFromTag = async (tagId: number, videoId: number) => {
     if (window.confirm('이 태그에서 AI 비디오를 제거하시겠습니까?')) {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/tags/${tagId}/videos/${videoId}`, {
+        const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/tags/${tagId}/videos/${videoId}`, {
           method: 'DELETE',
         });
         if (response.ok) {
@@ -109,9 +110,8 @@ const Tags: React.FC = () => {
     if (!newTagName.trim()) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tags`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/tags`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tag_name: newTagName.trim() }),
       });
       if (response.ok) {
@@ -127,7 +127,7 @@ const Tags: React.FC = () => {
   const deleteTag = async (tagId: number) => {
     if (window.confirm('이 태그를 삭제하시겠습니까? 연결된 모든 관계도 삭제됩니다.')) {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/tags/${tagId}`, {
+        const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/tags/${tagId}`, {
           method: 'DELETE',
         });
         if (response.ok) {

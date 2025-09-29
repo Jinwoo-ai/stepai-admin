@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { authUtils } from '../utils/auth';
 
 interface Inquiry {
   id: number;
@@ -67,7 +68,7 @@ const Inquiries: React.FC<InquiriesProps> = ({ onUpdate }) => {
       if (filters.inquiry_type) params.append('inquiry_type', filters.inquiry_type);
       if (filters.inquiry_status) params.append('inquiry_status', filters.inquiry_status);
 
-      const response = await fetch(`${API_BASE_URL}/api/inquiries?${params}`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/inquiries?${params}`);
       const data = await response.json();
       
       if (data.success) {
@@ -86,9 +87,8 @@ const Inquiries: React.FC<InquiriesProps> = ({ onUpdate }) => {
 
   const updateInquiryStatus = async (id: number, status: string, adminNotes?: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/inquiries/${id}`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/inquiries/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           inquiry_status: status,
           admin_notes: adminNotes,
@@ -112,7 +112,7 @@ const Inquiries: React.FC<InquiriesProps> = ({ onUpdate }) => {
   const deleteInquiry = async (id: number) => {
     if (window.confirm('정말 삭제하시겠습니까?')) {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/inquiries/${id}`, {
+        const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/inquiries/${id}`, {
           method: 'DELETE'
         });
         if (response.ok) {

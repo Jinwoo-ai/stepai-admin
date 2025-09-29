@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { authUtils } from '../utils/auth';
 
 interface DashboardStats {
   totalUsers: number;
@@ -35,7 +36,7 @@ const Dashboard: React.FC = () => {
   const fetchStats = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/dashboard/stats`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/dashboard/stats`);
       const data = await response.json();
       if (response.ok) {
         setStats(data);

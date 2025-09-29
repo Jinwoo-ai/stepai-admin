@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactQuill from 'react-quill';
+import { authUtils } from '../utils/auth';
 
 interface Curation {
   id?: number;
@@ -57,7 +58,7 @@ const Curations: React.FC = () => {
       if (filters.curation_status) params.append('curation_status', filters.curation_status);
       params.append('include_ai_services', 'true');
       
-      const response = await fetch(`${API_BASE_URL}/api/curations?${params}`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/curations?${params}`);
       const data = await response.json();
       if (data.success) {
         setCurations(data.data?.data || []);
@@ -75,7 +76,7 @@ const Curations: React.FC = () => {
     }
     
     try {
-      const response = await fetch(`${API_BASE_URL}/api/ai-services/admin-search?q=${encodeURIComponent(query)}`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/ai-services/admin-search?q=${encodeURIComponent(query)}`);
       const data = await response.json();
       if (data.success) {
         setServiceResults(data.data || []);
@@ -93,9 +94,8 @@ const Curations: React.FC = () => {
         ? `${API_BASE_URL}/api/curations/${editingCuration.id}`
         : `${API_BASE_URL}/api/curations`;
       
-      const response = await fetch(url, {
+      const response = await authUtils.authenticatedFetch(url, {
         method: editingCuration ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
           ai_service_ids: selectedServices.map(s => s.id)
@@ -127,7 +127,7 @@ const Curations: React.FC = () => {
   const deleteCuration = async (id: number) => {
     if (window.confirm('정말 삭제하시겠습니까?')) {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/curations/${id}`, {
+        const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/curations/${id}`, {
           method: 'DELETE',
         });
         if (response.ok) {
@@ -420,7 +420,7 @@ const Curations: React.FC = () => {
                         
                         // 기존 서비스 목록 불러오기
                         try {
-                          const response = await fetch(`${API_BASE_URL}/api/curations/${curation.id}/services`);
+                          const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/curations/${curation.id}/services`);
                           const data = await response.json();
                           if (data.success) {
                             setSelectedServices(data.data || []);

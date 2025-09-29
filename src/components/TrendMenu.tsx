@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { authUtils } from '../utils/auth';
 
 interface TrendSection {
   id?: number;
@@ -83,7 +84,7 @@ const TrendMenu: React.FC = () => {
 
   const fetchTrendSections = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/homepage-settings/trends`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/homepage-settings/trends`);
       const data = await response.json();
       if (data.success) {
         setTrendSections(data.data);
@@ -99,7 +100,7 @@ const TrendMenu: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/homepage-settings/main-categories`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/homepage-settings/main-categories`);
       const data = await response.json();
       if (data.success) {
         setCategories(data.data);
@@ -118,7 +119,7 @@ const TrendMenu: React.FC = () => {
         params.append('category_id', selectedCategory.toString());
       }
       
-      const response = await fetch(
+      const response = await authUtils.authenticatedFetch(
         `${API_BASE_URL}/api/homepage-settings/trends/${selectedSection.id}/services?${params}`
       );
       const data = await response.json();
@@ -138,7 +139,7 @@ const TrendMenu: React.FC = () => {
       if (selectedSection?.id) params.append('section_id', selectedSection.id.toString());
       if (selectedCategory) params.append('category_id', selectedCategory.toString());
       
-      const response = await fetch(
+      const response = await authUtils.authenticatedFetch(
         `${API_BASE_URL}/api/homepage-settings/available-services?${params}`
       );
       const data = await response.json();
@@ -179,9 +180,8 @@ const TrendMenu: React.FC = () => {
     ];
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/homepage-settings/trends`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/homepage-settings/trends`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sections: defaultSections })
       });
       
@@ -195,9 +195,8 @@ const TrendMenu: React.FC = () => {
 
   const updateTrendSection = async (section: TrendSection) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/homepage-settings/trends`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/homepage-settings/trends`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sections: [section] })
       });
       
@@ -216,9 +215,8 @@ const TrendMenu: React.FC = () => {
         display_order: trendSections.length + 1
       };
       
-      const response = await fetch(`${API_BASE_URL}/api/homepage-settings/trends`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/homepage-settings/trends`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sections: [sectionWithOrder] })
       });
       
@@ -242,7 +240,7 @@ const TrendMenu: React.FC = () => {
     if (!window.confirm('이 트렌드 섹션을 삭제하시겠습니까?')) return;
     
     try {
-      const response = await fetch(`${API_BASE_URL}/api/homepage-settings/trends/${sectionId}`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/homepage-settings/trends/${sectionId}`, {
         method: 'DELETE'
       });
       
@@ -261,11 +259,10 @@ const TrendMenu: React.FC = () => {
     if (!selectedSection?.id) return;
     
     try {
-      const response = await fetch(
+      const response = await authUtils.authenticatedFetch(
         `${API_BASE_URL}/api/homepage-settings/trends/${selectedSection.id}/services`,
         {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             services: trendServices,
             category_id: selectedCategory 
@@ -273,11 +270,17 @@ const TrendMenu: React.FC = () => {
         }
       );
       
-      if (response.ok) {
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        alert('트렌드 서비스 설정이 저장되었습니다.');
         fetchTrendServices();
+      } else {
+        alert(data.error || '저장에 실패했습니다.');
       }
     } catch (error) {
       console.error('Error updating trend services:', error);
+      alert('저장 중 오류가 발생했습니다.');
     }
   };
 

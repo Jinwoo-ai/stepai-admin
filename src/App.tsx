@@ -12,6 +12,8 @@ import Tags, { TagOption } from './components/Tags';
 import AdPartnerships from './components/AdPartnerships';
 import Inquiries from './components/Inquiries';
 import TrendMenu from './components/TrendMenu';
+import Login from './components/Login';
+import authUtils, { User } from './utils/auth';
 import './App.css';
 
 interface AIService {
@@ -97,6 +99,8 @@ interface AIVideo {
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentPage, setCurrentPage] = useState('ai-services');
   const [pendingCounts, setPendingCounts] = useState({
     adPartnerships: 0,
@@ -196,19 +200,33 @@ function App() {
   const [videoServiceResults, setVideoServiceResults] = useState<AIService[]>([]);
   const [selectedVideoServices, setSelectedVideoServices] = useState<AIService[]>([]);
 
+  // 로그인 상태 확인
+  useEffect(() => {
+    const checkAuth = () => {
+      const loggedIn = authUtils.isLoggedIn();
+      const user = authUtils.getUser();
+      setIsLoggedIn(loggedIn);
+      setCurrentUser(user);
+    };
+    
+    checkAuth();
+  }, []);
+
   // 미처리 건수 조회
   useEffect(() => {
-    fetchPendingCounts();
-  }, []);
+    if (isLoggedIn) {
+      fetchPendingCounts();
+    }
+  }, [isLoggedIn]);
 
   const fetchPendingCounts = async () => {
     try {
       // 광고제휴 미처리 건수
-      const adResponse = await fetch(`${API_BASE_URL}/api/ad-partnerships?inquiry_status=pending&limit=1`);
+      const adResponse = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/ad-partnerships?inquiry_status=pending&limit=1`);
       const adData = await adResponse.json();
       
       // 고객문의 미처리 건수
-      const inquiryResponse = await fetch(`${API_BASE_URL}/api/inquiries?inquiry_status=pending&limit=1`);
+      const inquiryResponse = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/inquiries?inquiry_status=pending&limit=1`);
       const inquiryData = await inquiryResponse.json();
       
       setPendingCounts({
@@ -395,9 +413,8 @@ function App() {
         ? `${API_BASE_URL}/api/ai-services/${editingService.id}`
         : `${API_BASE_URL}/api/ai-services`;
       
-      const response = await fetch(url, {
+      const response = await authUtils.authenticatedFetch(url, {
         method: editingService ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
@@ -449,7 +466,7 @@ function App() {
   const deleteService = async (id: number) => {
     if (window.confirm('정말 삭제하시겠습니까?')) {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/ai-services/${id}`, {
+        const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/ai-services/${id}`, {
           method: 'DELETE',
         });
         if (response.ok) {
@@ -463,9 +480,8 @@ function App() {
 
   const toggleStepPick = async (service: AIService) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/ai-services/${service.id}`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/ai-services/${service.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_step_pick: !service.is_step_pick }),
       });
       if (response.ok) {
@@ -478,9 +494,8 @@ function App() {
 
   const toggleNew = async (service: AIService) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/ai-services/${service.id}`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/ai-services/${service.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_new: !service.is_new }),
       });
       if (response.ok) {
@@ -517,9 +532,8 @@ function App() {
     } else {
       // 기존 서비스 수정 시 API 호출
       try {
-        const response = await fetch(`${API_BASE_URL}/api/ai-services/${editingService.id}/similar-services`, {
+        const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/ai-services/${editingService.id}/similar-services`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ similar_service_id: service.id })
         });
         
@@ -552,7 +566,7 @@ function App() {
     } else {
       // 기존 서비스 수정 시 API 호출
       try {
-        const response = await fetch(`${API_BASE_URL}/api/ai-services/${editingService.id}/similar-services/${serviceId}`, {
+        const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/ai-services/${editingService.id}/similar-services/${serviceId}`, {
           method: 'DELETE'
         });
         
@@ -633,9 +647,8 @@ function App() {
         ? `${API_BASE_URL}/api/ai-videos/${editingVideo.id}`
         : `${API_BASE_URL}/api/ai-videos`;
       
-      const response = await fetch(url, {
+      const response = await authUtils.authenticatedFetch(url, {
         method: editingVideo ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...videoFormData,
           ai_services: selectedVideoServices.map((service, index) => ({
@@ -716,7 +729,7 @@ function App() {
   const deleteVideo = async (id: number) => {
     if (window.confirm('정말 삭제하시겠습니까?')) {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/ai-videos/${id}`, {
+        const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/ai-videos/${id}`, {
           method: 'DELETE',
         });
         if (response.ok) {
@@ -1370,7 +1383,7 @@ function App() {
                               
                               try {
                                 // Railway proxy를 통해 요청
-                                const response = await fetch(`/api/ai-services/upload-icon`, {
+                                const response = await authUtils.authenticatedFetch(`/api/ai-services/upload-icon`, {
                                   method: 'POST',
                                   body: formData
                                 });
@@ -1944,7 +1957,7 @@ function App() {
               const formData = new FormData(e.target as HTMLFormElement);
               
               try {
-                const response = await fetch(`${API_BASE_URL}/api/ai-services/upload-excel`, {
+                const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/ai-services/upload-excel`, {
                   method: 'POST',
                   body: formData
                 });
@@ -2235,11 +2248,34 @@ function App() {
     </div>
   );
 
+  const handleLogin = (token: string, user: User) => {
+    authUtils.setToken(token);
+    authUtils.setUser(user);
+    setIsLoggedIn(true);
+    setCurrentUser(user);
+  };
+
+  const handleLogout = async () => {
+    await authUtils.logout();
+    setIsLoggedIn(false);
+    setCurrentUser(null);
+  };
+
+  if (!isLoggedIn) {
+    return <Login onLogin={handleLogin} />;
+  }
+
   return (
     <div className="App">
       <nav className="sidebar">
         <div className="logo">
           <h2>StepAI Admin</h2>
+          <div className="user-info">
+            <span>{currentUser?.name}</span>
+            <button onClick={handleLogout} className="logout-btn">
+              로그아웃
+            </button>
+          </div>
         </div>
         <ul className="nav-menu">
           {/* 대시보드 */}

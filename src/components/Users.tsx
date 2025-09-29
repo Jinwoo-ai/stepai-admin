@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { authUtils } from '../utils/auth';
 
 interface User {
   id?: number;
@@ -50,7 +51,7 @@ const Users: React.FC = () => {
       if (filters.user_type) params.append('user_type', filters.user_type);
       if (filters.user_status) params.append('user_status', filters.user_status);
       
-      const response = await fetch(`${API_BASE_URL}/api/users?${params}`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/users?${params}`);
       const data = await response.json();
       if (data.success) {
         setUsers(data.data?.data || []);
@@ -115,7 +116,7 @@ const Users: React.FC = () => {
   const deleteUser = async (id: number) => {
     if (window.confirm('정말 삭제하시겠습니까?')) {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/users/${id}`, {
+        const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/users/${id}`, {
           method: 'DELETE',
         });
         if (response.ok) {

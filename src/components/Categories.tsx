@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { authUtils } from '../utils/auth';
 
 interface Category {
   id: number;
@@ -35,7 +36,7 @@ const Categories: React.FC = () => {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/categories`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/categories`);
       const data = await response.json();
       if (data.success) {
         const categoriesData = data.data || [];
@@ -72,9 +73,8 @@ const Categories: React.FC = () => {
         ? `${API_BASE_URL}/api/categories/${editingCategory.id}`
         : `${API_BASE_URL}/api/categories`;
       
-      const response = await fetch(url, {
+      const response = await authUtils.authenticatedFetch(url, {
         method: editingCategory ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
@@ -123,7 +123,7 @@ const Categories: React.FC = () => {
   const deleteCategory = async (id: number) => {
     if (window.confirm('정말 삭제하시겠습니까? 하위 카테고리도 함께 삭제됩니다.')) {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/categories/${id}`, {
+        const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/categories/${id}`, {
           method: 'DELETE',
         });
         if (response.ok) {
@@ -137,9 +137,8 @@ const Categories: React.FC = () => {
 
   const toggleStatus = async (category: Category) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/categories/${category.id}`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/categories/${category.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           category_status: category.category_status === 'active' ? 'inactive' : 'active' 
         }),
@@ -162,9 +161,8 @@ const Categories: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/categories/${draggableId}/reorder`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/categories/${draggableId}/reorder`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           new_order: destination.index + 1,
           parent_id: destination.droppableId === 'main' ? null : parseInt(destination.droppableId)

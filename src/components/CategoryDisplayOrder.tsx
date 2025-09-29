@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { authUtils } from '../utils/auth';
 
 interface AIService {
   id: number;
@@ -57,7 +58,7 @@ const CategoryDisplayOrder: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`${API_BASE}/api/categories`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/categories`);
       const data = await response.json();
       if (data.success) {
         // 계층 구조로 변환 (부모 > 자식 형태)
@@ -88,7 +89,7 @@ const CategoryDisplayOrder: React.FC = () => {
     
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/api/category-display-order/${selectedCategory}?limit=20`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/category-display-order/${selectedCategory}?limit=20`);
       const data = await response.json();
       if (data.success) {
         setDisplayServices(data.data);
@@ -105,7 +106,7 @@ const CategoryDisplayOrder: React.FC = () => {
     if (!selectedCategory) return;
     
     try {
-      const response = await fetch(`${API_BASE}/api/category-display-order/available-services?category_id=${selectedCategory}&search=${searchTerm}&limit=1000`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/category-display-order/available-services?category_id=${selectedCategory}&search=${searchTerm}&limit=1000`);
       const data = await response.json();
       if (data.success) {
         setAvailableServices(data.data);
@@ -119,9 +120,8 @@ const CategoryDisplayOrder: React.FC = () => {
     if (!selectedCategory) return;
 
     try {
-      const response = await fetch(`${API_BASE}/api/category-display-order/${selectedCategory}/services`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/category-display-order/${selectedCategory}/services`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ai_service_id: serviceId,
           display_order: displayServices.length + 1,
@@ -148,7 +148,7 @@ const CategoryDisplayOrder: React.FC = () => {
     if (!window.confirm('이 서비스를 카테고리에서 제거하시겠습니까?')) return;
 
     try {
-      const response = await fetch(`${API_BASE}/api/category-display-order/${selectedCategory}/services/${serviceId}`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/category-display-order/${selectedCategory}/services/${serviceId}`, {
         method: 'DELETE'
       });
 
@@ -235,9 +235,8 @@ const CategoryDisplayOrder: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/api/category-display-order/${selectedCategory}/reorder`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/category-display-order/${selectedCategory}/reorder`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           services: displayServices.map(s => ({
             ai_service_id: s.ai_service_id,
@@ -271,7 +270,7 @@ const CategoryDisplayOrder: React.FC = () => {
 
   const setupTable = async () => {
     try {
-      const response = await fetch(`${API_BASE}/api/setup/category-display-order`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/setup/category-display-order`, {
         method: 'POST'
       });
       const data = await response.json();

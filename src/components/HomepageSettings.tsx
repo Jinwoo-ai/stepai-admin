@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { authUtils } from '../utils/auth';
 
 interface AIVideo {
   id: number;
@@ -111,7 +112,7 @@ const HomepageSettings: React.FC = () => {
 
   const fetchHomepageVideos = async () => {
     try {
-      const response = await fetch(`${API_BASE}/api/homepage-settings/videos`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/homepage-settings/videos`);
       const data = await response.json();
       if (data.success) {
         setHomepageVideos(data.data);
@@ -123,7 +124,7 @@ const HomepageSettings: React.FC = () => {
 
   const fetchHomepageCurations = async () => {
     try {
-      const response = await fetch(`${API_BASE}/api/homepage-settings/curations`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/homepage-settings/curations`);
       const data = await response.json();
       if (data.success) {
         setHomepageCurations(data.data);
@@ -140,7 +141,7 @@ const HomepageSettings: React.FC = () => {
         params.append('category_id', selectedCategory.toString());
       }
       
-      const response = await fetch(`${API_BASE}/api/homepage-settings/step-pick?${params}`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/homepage-settings/step-pick?${params}`);
       const data = await response.json();
       if (data.success) {
         setHomepageServices(data.data);
@@ -152,7 +153,7 @@ const HomepageSettings: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`${API_BASE}/api/homepage-settings/main-categories`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/homepage-settings/main-categories`);
       const data = await response.json();
       if (data.success) {
         setCategories(data.data);
@@ -164,7 +165,7 @@ const HomepageSettings: React.FC = () => {
 
   const fetchAvailableVideos = async () => {
     try {
-      const response = await fetch(`${API_BASE}/api/homepage-settings/available-videos?search=${searchTerm}&limit=50`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/homepage-settings/available-videos?search=${searchTerm}&limit=50`);
       const data = await response.json();
       if (data.success) {
         setAvailableVideos(data.data);
@@ -176,7 +177,7 @@ const HomepageSettings: React.FC = () => {
 
   const fetchAvailableCurations = async () => {
     try {
-      const response = await fetch(`${API_BASE}/api/homepage-settings/available-curations?search=${searchTerm}&limit=50`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/homepage-settings/available-curations?search=${searchTerm}&limit=50`);
       const data = await response.json();
       if (data.success) {
         setAvailableCurations(data.data);
@@ -202,7 +203,7 @@ const HomepageSettings: React.FC = () => {
         params.append('category_id', selectedCategory.toString());
       }
       
-      const response = await fetch(`${API_BASE}/api/homepage-settings/available-services?${params}`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/homepage-settings/available-services?${params}`);
       const data = await response.json();
       if (data.success) {
         setAvailableServices(data.data);
@@ -215,9 +216,8 @@ const HomepageSettings: React.FC = () => {
   const saveHomepageVideos = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/api/homepage-settings/videos`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/homepage-settings/videos`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ videos: homepageVideos })
       });
       
@@ -239,9 +239,8 @@ const HomepageSettings: React.FC = () => {
   const saveHomepageCurations = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/api/homepage-settings/curations`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/homepage-settings/curations`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ curations: homepageCurations })
       });
       
@@ -263,9 +262,8 @@ const HomepageSettings: React.FC = () => {
   const saveHomepageServices = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/api/homepage-settings/step-pick`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE}/api/homepage-settings/step-pick`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           services: homepageServices,
           category_id: selectedCategory 
@@ -273,15 +271,15 @@ const HomepageSettings: React.FC = () => {
       });
       
       const data = await response.json();
-      if (data.success) {
+      if (response.ok && data.success) {
         alert('메인페이지 STEP PICK 설정이 저장되었습니다.');
         fetchAvailableServices();
       } else {
-        alert(data.error);
+        alert(data.error || '저장에 실패했습니다.');
       }
     } catch (error) {
       console.error('서비스 설정 저장 실패:', error);
-      alert('서비스 설정 저장에 실패했습니다.');
+      alert('서비스 설정 저장 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { authUtils } from '../utils/auth';
 
 interface SiteSettings {
   id?: number;
@@ -36,7 +37,7 @@ const SiteSettings: React.FC = () => {
   const fetchSettings = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/site-settings`);
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/site-settings`);
       const data = await response.json();
       if (data.success) {
         setSettings(data.data);
@@ -53,9 +54,8 @@ const SiteSettings: React.FC = () => {
     setMessage('');
     
     try {
-      const response = await fetch(`${API_BASE_URL}/api/site-settings`, {
+      const response = await authUtils.authenticatedFetch(`${API_BASE_URL}/api/site-settings`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings),
       });
 
