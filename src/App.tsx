@@ -2134,46 +2134,63 @@ function App() {
                   </td>
                   <td>
                     <button
-                      onClick={() => {
-                        setEditingService(service);
-                        setFormData({
-                          ai_name: service.ai_name,
-                          ai_name_en: service.ai_name_en || '',
-                          ai_description: service.ai_description || '',
-                          ai_type_ids: (service as any).ai_types ? aiTypes.filter(t => (service as any).ai_types.includes(t.type_name)).map(t => t.id) : [],
-                          ai_website: service.ai_website || '',
-                          ai_logo: service.ai_logo || '',
-                          company_name: service.company_name || '',
-                          company_name_en: service.company_name_en || '',
-                          embedded_video_url: service.embedded_video_url || '',
-                          headquarters: service.headquarters || '',
-                          pricing_model_ids: (service as any).pricing_models ? pricingModels.filter(m => (service as any).pricing_models.includes(m.model_name)).map(m => m.id) : [],
-                          pricing_info: service.pricing_info || '',
-                          difficulty_level: service.difficulty_level || 'beginner',
-                          target_type_ids: (service as any).target_types ? targetTypes.filter(t => (service as any).target_types.some((st: any) => st.code === t.type_code)).map(t => t.id) : [],
-                          usage_availability: service.usage_availability || '',
-                          nationality: service.nationality || '',
-                          is_visible: service.is_visible ?? true,
-                          is_step_pick: service.is_step_pick ?? false,
-                          is_new: service.is_new ?? false,
-                          categories: service.categories?.map(cat => ({
-                            category_id: cat.id,
-                            is_main: !!cat.is_main_category,
-                            category_name: cat.parent_id 
-                              ? `${cat.parent_category_name} > ${cat.category_name}`
-                              : cat.category_name,
-                            parent_name: cat.parent_category_name
-                          })) || [],
-                          contents: service.contents?.length ? service.contents : [
-                            { content_type: 'target_users', content_title: '타겟 사용자', content_text: '', content_order: 1 },
-                            { content_type: 'main_features', content_title: '주요 기능', content_text: '', content_order: 2 },
-                            { content_type: 'use_cases', content_title: '추천 활용사례', content_text: '', content_order: 3 }
-                          ],
-                          sns: service.sns || [],
-                          similar_service_ids: service.similar_services_list?.map(s => s.id) || [],
-                          selected_tags: (service as any).tag_ids || []
-                        });
-                        setShowForm(true);
+                      onClick={async () => {
+                        try {
+                          // 개별 AI 서비스 상세 정보 조회 (유사 서비스 포함)
+                          const response = await fetch(`${API_BASE_URL}/api/ai-services/${service.id}?include_categories=true`);
+                          const data = await response.json();
+                          
+                          if (data.success) {
+                            const detailService = data.data;
+                            setEditingService(detailService);
+                            setFormData({
+                              ai_name: detailService.ai_name,
+                              ai_name_en: detailService.ai_name_en || '',
+                              ai_description: detailService.ai_description || '',
+                              ai_type_ids: (detailService as any).ai_types ? aiTypes.filter(t => (detailService as any).ai_types.includes(t.type_name)).map(t => t.id) : [],
+                              ai_website: detailService.ai_website || '',
+                              ai_logo: detailService.ai_logo || '',
+                              company_name: detailService.company_name || '',
+                              company_name_en: detailService.company_name_en || '',
+                              embedded_video_url: detailService.embedded_video_url || '',
+                              headquarters: detailService.headquarters || '',
+                              pricing_model_ids: (detailService as any).pricing_models ? pricingModels.filter(m => (detailService as any).pricing_models.includes(m.model_name)).map(m => m.id) : [],
+                              pricing_info: detailService.pricing_info || '',
+                              difficulty_level: detailService.difficulty_level || 'beginner',
+                              target_type_ids: (detailService as any).target_types ? targetTypes.filter(t => (detailService as any).target_types.some((st: any) => st.code === t.type_code)).map(t => t.id) : [],
+                              usage_availability: detailService.usage_availability || '',
+                              nationality: detailService.nationality || '',
+                              is_visible: detailService.is_visible ?? true,
+                              is_step_pick: detailService.is_step_pick ?? false,
+                              is_new: detailService.is_new ?? false,
+                              categories: detailService.categories?.map((cat: any) => ({
+                                category_id: cat.id,
+                                is_main: !!cat.is_main_category,
+                                category_name: cat.parent_id 
+                                  ? `${cat.parent_category_name} > ${cat.category_name}`
+                                  : cat.category_name,
+                                parent_name: cat.parent_category_name
+                              })) || [],
+                              contents: detailService.contents?.length ? detailService.contents : [
+                                { content_type: 'target_users', content_title: '타겟 사용자', content_text: '', content_order: 1 },
+                                { content_type: 'main_features', content_title: '주요 기능', content_text: '', content_order: 2 },
+                                { content_type: 'use_cases', content_title: '추천 활용사례', content_text: '', content_order: 3 }
+                              ],
+                              sns: detailService.sns || [],
+                              similar_service_ids: detailService.similar_services_list?.map((s: any) => s.id) || [],
+                              selected_tags: (detailService as any).tag_ids || []
+                            });
+                            // 유사 서비스 정보도 저장
+                            setAddedSimilarServices(detailService.similar_services_list || []);
+                            setShowForm(true);
+                          } else {
+                            console.error('Failed to fetch service details:', data.error);
+                            alert('서비스 상세 정보를 불러오는데 실패했습니다.');
+                          }
+                        } catch (error) {
+                          console.error('Error fetching service details:', error);
+                          alert('서비스 상세 정보를 불러오는 중 오류가 발생했습니다.');
+                        }
                       }}
                       className="btn-edit"
                     >
