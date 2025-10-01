@@ -20,6 +20,7 @@ interface Curation {
 interface AIService {
   id: number;
   ai_name: string;
+  ai_name_en?: string;
   ai_description?: string;
   ai_logo?: string;
   company_name?: string;
@@ -56,6 +57,7 @@ interface HomepageService {
   display_order: number;
   is_active: boolean;
   ai_name?: string;
+  ai_name_en?: string;
   ai_logo?: string;
   category_name?: string;
 }
@@ -340,7 +342,7 @@ const HomepageSettings: React.FC = () => {
       category_id: selectedCategory || undefined,
       display_order: homepageServices.length + 1,
       is_active: true,
-      ai_name: service.ai_name,
+      ai_name: service.ai_name_en || service.ai_name,
       ai_logo: service.ai_logo
     };
     setHomepageServices([...homepageServices, newService]);
@@ -523,7 +525,7 @@ const HomepageSettings: React.FC = () => {
                       <img src={service.ai_logo} alt="" className="item-logo" />
                     )}
                     <div className="item-info">
-                      <h4>{service.ai_name}</h4>
+                      <h4>{service.ai_name_en || service.ai_name}</h4>
                       {service.category_name && (
                         <span className="category-badge">{service.category_name}</span>
                       )}
@@ -618,7 +620,7 @@ const HomepageSettings: React.FC = () => {
                       <img src={service.ai_logo} alt="" className="item-logo" />
                     )}
                     <div className="item-info">
-                      <h4>{service.ai_name}</h4>
+                      <h4>{service.ai_name_en || service.ai_name}</h4>
                       <p>{service.company_name}</p>
                       {service.is_step_pick && <span className="step-pick-badge">STEP PICK</span>}
                     </div>

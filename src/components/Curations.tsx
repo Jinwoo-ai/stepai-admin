@@ -16,7 +16,9 @@ interface Curation {
 
 interface AIService {
   id: number;
+  ai_service_id?: number;
   ai_name: string;
+  ai_name_en?: string;
   ai_type: string;
   service_order?: number;
 }
@@ -98,7 +100,7 @@ const Curations: React.FC = () => {
         method: editingCuration ? 'PUT' : 'POST',
         body: JSON.stringify({
           ...formData,
-          ai_service_ids: selectedServices.map(s => s.id)
+          ai_service_ids: selectedServices.map(s => s.ai_service_id || s.id)
         }),
       });
 
@@ -270,7 +272,7 @@ const Curations: React.FC = () => {
                           🤖
                         </div>
                         <div className="service-info">
-                          <div className="service-name">{service.ai_name}</div>
+                          <div className="service-name">{service.ai_name_en || service.ai_name}</div>
                           <div className="service-type">{service.ai_type}</div>
                         </div>
                       </div>
@@ -347,7 +349,7 @@ const Curations: React.FC = () => {
                       🤖
                     </div>
                     <div className="result-service-info">
-                      <div className="result-service-name">{service.ai_name}</div>
+                      <div className="result-service-name">{service.ai_name_en || service.ai_name}</div>
                       <div className="result-service-type">{service.ai_type}</div>
                     </div>
                   </div>
